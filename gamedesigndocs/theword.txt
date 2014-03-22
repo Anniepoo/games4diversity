@@ -1,0 +1,26 @@
+This is a MMO in a single web page. The page has a bunch of people on it.
+
+The people affect each other. So, for example, being around religious right
+people will make the gay people afraid.
+So we have some set of expressions for each base face. Atop that, they move about in some Lennard-Jonesish way.
+From time to time one of the people is highlighted. You're then in control of that person.
+There's a set of buttons you can click to have 'your' person influence those around them.
+So if you preach tolerance you increase the tolerance level of people around you, but also
+make intolerant people move away from you.
+
+implementation:
+
+web page is served as swipl web page on pengines and jquery 
+
+on the web page side we loop through the list of chars and get positions for them from the server via pengines first/next. We jquery animate divs so they are moving towards static position.
+
+The divs contain face and expression IMG tags.
+
+How bad does this hammer the server?  Need to do forall on server and return list.
+
+On the server side every request also calls update_state/0
+We pick n pairs of NPC's at random. Each has a state vector. We have some function of the two
+state vectors that makes a new state vector for one of them.
+
+We might need to have n adjust for the rate at which it's getitng called so game speed doesn't vary wildly with load.
+
