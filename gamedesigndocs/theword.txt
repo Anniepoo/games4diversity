@@ -24,3 +24,6 @@ state vectors that makes a new state vector for one of them.
 
 We might need to have n adjust for the rate at which it's getitng called so game speed doesn't vary wildly with load.
 
+alternatively, might be easier to just call some 'update gamestate' uri on a spawned thread
+
+Pages - we need home page, main game page, and admin page to restart the game.
