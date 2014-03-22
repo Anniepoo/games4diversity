@@ -1,0 +1,12 @@
+:- module(load, []).
+/** <module> Load this to start the production environment
+
+*/
+
+% A bit of possibly excessive abstraction, we load the
+% server but don't run it in cranegame.pl
+:-use_module(cranegame).
+% make sure the handlers get loaded
+:- ensure_loaded(file_handler).
+:- ensure_loaded(styling).
+:- ensure_loaded(main_pages).

@@ -1,0 +1,67 @@
+:- module(gamejam, [gamejam_game_server/0,
+		     gamejam_game_debug_port/1,
+		     gamejam_game_production_port/1]).
+/** <module> Main predicates for the gamejam server
+
+This module contains the main predicates for the sample server.
+It loads but does not start the server.
+
+Start the server by querying gamejam_game_server/0 - although
+the usual way to start the server is by consulting debug.pl (dev
+version) or load.pl (production).
+
+@author Anne Ogborn
+@license lgpl
+@version 0.1.0
+
+*/
+
+% load the multi-threaded http server
+:- use_module(library(http/thread_httpd)).
+% and the standard handler dispatcher
+:- use_module(library(http/http_dispatch)).
+
+:- setting(debug_port, positive_integer, 14000,
+	   'Port to run the Gamejam Game on in debug mode.').
+:- setting(production_port, positive_integer, 14000,
+	   'Port to run the Gamejam Game on in production mode.').
+:- load_settings('settings.conf').
+
+%%    gamejam_game_debug_port(-Port:int) is semidet
+%
+%	return the debug port for http
+%
+gamejam_game_debug_port(Port) :-
+	setting(debug_port, Port).
+
+%%	gamejam_game_production_port(-Port:int) is semidet
+%
+%	return the production port for http
+%
+gamejam_game_production_port(Port) :-
+	setting(production_port, Port).
+
+%%	gamejam_game_server is det
+%
+%	Start the gamejam_game server on production port
+%
+gamejam_game_server :-
+	gamejam_game_production_port(Port),
+	gamejam_game_server(Port).
+
+%%	gamejam_game_server(+Port:int) is det
+%
+%	Start the gamejam_game server on the specified port
+%
+%	@arg Port the port number to start on
+%
+gamejam_game_server(Port) :-
+	format('Starting gamejam_game server on ~w', [Port]),
+        http_server(http_dispatch, [port(Port)]).
+
+
+
+
+
+
+

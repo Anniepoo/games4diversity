@@ -1,0 +1,20 @@
+
+#map {
+    height: 100%;
+	width: 100%;
+	min-height: 1000px;
+	}
+	
+div.twoup.left {
+    float: left;
+	clear: left;
+}
+
+div.twoup.right {
+    float: right;
+	clear: right;
+}
+
+div.twoup.container {
+      width: 400px;
+}
