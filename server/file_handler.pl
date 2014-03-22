@@ -14,6 +14,9 @@
 % and we need file support
 :- use_module(library(http/http_files)).
 
+% give'm a session
+:- use_module(library(http/http_session)).
+
 % Add an abstract URI path root to serve assets from
 %
 http:location(files, root(f), []).

@@ -7,6 +7,8 @@
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_files)).
 :- use_module(file_handler).
+:- use_module(library(http/http_session)).
+:- use_module(agent_utils).
 
 :- http_handler(root(.),
 		http_redirect(moved, root('index.html')),
@@ -30,19 +32,3 @@ root_handler(Request) :-
 root_handler(Request) :-
 	ua_type(Request, _),
 	serve_files(mobile_files(.), Request).
-
-ua_type(Request, mobile) :-
-	member(user_agent(UA), Request),
-	atom_codes(UA, Darn7UA),
-	phrase(mobile_string, Darn7UA).
-ua_type(_, desktop).
-
-mobile_string --> any, key, any.
-
-any --> [].
-any --> [_], any.
-
-key --> "mobile".
-key --> "Mobile".
-key --> "iphone".
-key --> "android".

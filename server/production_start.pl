@@ -54,7 +54,7 @@ http:location(pldoc, root('crane/help/source'), [priority(10)]).
 % We start it first
 % so it doesn't collide with pldoc
 :-ensure_loaded(load).
-:- use_module(cranegame).
+:- use_module(gamejam).
 
 
 
