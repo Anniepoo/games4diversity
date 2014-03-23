@@ -54,8 +54,6 @@ reset_world :- clear_world, add_persons_places.
 
 % clear_world
 % add_persons_places
-
-
 % -----------------------
 % existential predicates
 % -----------------------
@@ -149,8 +147,8 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 start_move_threads:-started_move_threads,!.
 start_move_threads:-
    asserta(started_move_threads),
-   thread_create(move_all_thread,ID1,[at_exit(retract_self)]),
-   thread_create(interpolate_thread,ID2,[at_exit(retract_self)]),
+   thread_create(move_all_thread,ID1,[alias(move_all_thread),at_exit(retract_self)]),
+   thread_create(interpolate_thread,ID2,[alias(interpolate_thread),at_exit(retract_self)]),
    asserta(movement_thread(ID1)),
    asserta(movement_thread(ID2)).
 
@@ -214,4 +212,4 @@ carts_for_polar_ofset(X1,Y1,Angle,GoDist,X2,Y2):-X2 is X1 + cos(Angle)*GoDist,Y2
 %% move_all:-noun_type(P1,Type),
 
 
-:-at_initialization(start_move_threads).
+:- start_move_threads.
