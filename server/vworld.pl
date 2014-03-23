@@ -217,8 +217,11 @@ interpolate_thread:-
 	debug(vworld_ticks, 'tick', []),
 	fail.
 
-
-move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
+move_all_one_sec:-
+	noun_type(P1,Type),
+	not(is_loc_type(Type)),
+	move_for_one_sec(P1),
+	fail.
 
 in_test_annies_work_mode(true).
 
