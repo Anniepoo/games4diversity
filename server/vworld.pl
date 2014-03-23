@@ -67,10 +67,10 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
 
 
-noun_state(P1,X,Y,EmoIcon,BodyIcon):- 
-   loc(P1,X,Y),  noun_type(P1,Body),
+noun_state(P1,X,Y,EmoIcon,BodyIcon):- noun_type(P1,Body),
+   once((loc(P1,X,Y),
    atom_concat(Body,'.PNG',BodyIcon),
-   reaction_icon(P1,EmoIcon).
+   reaction_icon(P1,EmoIcon))).
 	
 
 % place a Person is traveling to
@@ -129,7 +129,7 @@ add_persons_places.
 assert_now(X):-debugFmt(X),assert(X).
 
 
-debugFmt(X):-debugFmt('~w~n',[X]).
+debugFmt(X):-debugFmt('Debug: ~w. ~n',[X]).
 
 debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 
