@@ -1,13 +1,5 @@
 :- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]). 
 
-
-% returns a list 
-get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
-
-set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert(loc_goal(P1,X,Y)).
-   
-reset_world :- clear_world, add_persons_places.
-
 % -----------------------
 % Ontology and config
 % -----------------------
@@ -96,7 +88,7 @@ reaction(P1,P2,Emo,Strengh):-
 
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
-reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2),
+reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
    reaction(P1,P2,Emo,Strengh),
    strengh_scale(Strengh,SS),
    atom_concat(Emo,SS,EmoIcon),
