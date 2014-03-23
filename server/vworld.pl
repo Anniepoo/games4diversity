@@ -1,6 +1,6 @@
 :- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,
           set_loc_goal/3,is_loc_type/1,
-            noun_type/2,start_move_threads/0,stop_move_threads]).
+            noun_type/2,start_move_threads/0,stop_move_threads/0]).
 
 :- use_module(library(pengines)).
 :- use_module(library(sandbox)).
