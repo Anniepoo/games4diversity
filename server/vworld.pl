@@ -66,7 +66,10 @@ world_range(1,200,1000,1000,800).
 
 % returns a list
 
-get_vworld(ListO):-  P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon,_ToolTip), findall(P,P,List),!,ListO=List.
+% Jan fixes!
+get_vworld(List):-  findall(
+   noun_state(P1,X,Y,NounType,EmoIcon,BodyIcon,ToolTip),
+   noun_state(P1,X,Y,NounType,EmoIcon,BodyIcon,ToolTip), List).
 
 set_loc_goal(P1,X1,Y1):-
    to_int(X1,X2),
@@ -189,6 +192,8 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 % world play preds
 % -----------------------
 :-dynamic(started_move_threads/0).
+:- dynamic movement_thread/1.
+
 start_move_threads:-started_move_threads,!.
 start_move_threads:-
    asserta(started_move_threads),
@@ -203,22 +208,44 @@ stop_move_threads:- retract(movement_thread(ID)),thread_signal(ID,thread_exit(ki
 stop_move_threads.
 
 move_all_thread:-repeat,sleep(20),once(move_all),fail.
-interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
+interpolate_thread:-
+	repeat,
+	sleep(1),
+	catch(once(move_all_one_sec),
+	     Oops,
+	     debug(vworld_ticks, 'Error in move_all_one_sec ~w', [Oops])),
+	debug(vworld_ticks, 'tick', []),
+	fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!. make. % to check for changed disk files!
 
-move_for_one_sec(P1):- 
+in_test_annies_work_mode(true).
+
+move_for_one_sec(P1) :-
+   in_test_annies_work_mode(true),
+   !,
+   loc(P1, X1, Y1),
+   X is X1 + 30,
+   Y is Y1 + 50,
+   set_loc(P1, X, Y),
+   (
+       P1 \= priest1
+   ;
+       debug(vworld_ticks, 'priest1 at (~w,~w)', [X,Y])
+   ).
+
+move_for_one_sec(P1):-
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
    loc(P1,X1,Y1),
    get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
+
    set_loc(P1,X2,Y2),!.
 
 move_for_one_sec(P1) :-
    loc(P1,X1,Y1),
-   setof(P, noun_type(P, _), People), 
+   setof(P, noun_type(P, _), People),
    lennard_jones_m(P1, People, 0,0, FX, FY),
    speed_cofactor(S),
    X2 is X1 + FX * S,
@@ -260,7 +287,7 @@ lj_coefficients(move,_,_,4096.0, -256000.0).
 lj_coefficients(tension,_,_,4096.0, -256000.0).
 
 
-  
+
 % movement version
 lennard_jones_m(P, T, NFX, NFY, FX, FY):-lennard_jones(move, P, T, NFX, NFY, FX, FY).
 
@@ -268,7 +295,7 @@ lennard_jones_m(P, T, NFX, NFY, FX, FY):-lennard_jones(move, P, T, NFX, NFY, FX,
 lennard_jones_a_w(P, T, NFX, NFY, FX, FY):-
    lennard_jones(tension, P, T, NFX, NFY, FX, FY),!.
 
-   
+
 lennard_jones(_Type,_P, [], FInX, FInY, FInX, FInY).
 lennard_jones(Type,P, [P|T], FInX, FInY, FX, FY) :- % skip oneself
     lennard_jones(Type,P, T, FInX, FInY, FX, FY).
@@ -285,11 +312,11 @@ lj_dist(Type, P, B,  R) :-
    stability(Type, P, B, Stability),
    mag(Type, P, B, Mag),
    dist(P,B,D),
-   
+
   %% nop((noun_type(B,BType), type_effect_range(BType,RE), drv(D,RE*2,V1),V is V1*5 )),
    V is D,
    R is (V* Mag) + Stability.
-    
+
 unit_vector(P, B, R, UX, UY) :-
     loc(P, XA, YA),
     loc(B, XB, YB),
@@ -332,7 +359,7 @@ change_loc_goal(P1):-
    set_loc_goal(P1,X3,Y3),
    debugFmt('~w trying to get from ~w,~w to ~w,~w ~n',[P1, X1,Y1,X3,Y3]).
 
-change_loc_goal(P1):- 
+change_loc_goal(P1):-
    random_loc(X,Y),
    set_loc(P1, X,Y),
    set_loc_goal(P1,X,Y),!.
