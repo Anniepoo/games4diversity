@@ -62,7 +62,7 @@ a_character([noun_state(Name,X,Y,person, EmoIcon,BodyIcon, ToolTip)| Rest]) -->
 		     img([class(emo), src(['/img/~w'-EmoIcon])])
 		 ])),
 	a_character(Rest).
-a_character([noun_state(_,_,_,place,_,_,_) | Rest]) -->
+a_character([noun_state(_,_,_,place,_,_) | Rest]) -->
 	a_character(Rest).          
                                           
 % get_vworld([noun_state(P1,X,Y,EmoIcon,BodyIcon),noun_state(P1,X,Y,EmoIcon,BodyIcon),...])                              "

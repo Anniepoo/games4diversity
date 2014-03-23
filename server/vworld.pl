@@ -139,7 +139,7 @@ type_react(wmale25,gay,anger).
 type_react(T1,T2,happy):-T1==T2.
 type_react(T1,T2,neutral):-T1==T2.
 type_react(_T1,_T2,fear):-!.
-%%type_react(_T1,_T2,neutral):-!.
+type_react(_T1,_T2,neutral):-!.
 
 strengh_scale(_,1).
 
