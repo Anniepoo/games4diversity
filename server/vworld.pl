@@ -32,7 +32,7 @@ This file brokers the game state.
 
 is_stereotype(christian).
 is_stereotype(gay).
-is_stereotype(wmale25).
+is_stereotype(average).
 % same as christian but wanted to make sure we handle a third.  Could have used sutypes of LGBT
 
 % location type and EffectRange
@@ -45,12 +45,12 @@ nop(_).
 % setup_type(PType,EffectRange,Haunt,Create,Cate).
 setup_type(priest,200,church,1,christian).
 setup_type(activist,200,disco,1,gay).
-setup_type(basher,200,sportsbar,1,wmale25).
+setup_type(basher,200,sportsbar,1,average).
 setup_type(church,300,church,1,christian).
-setup_type(sportsbar,300,sportsbar,1,wmale25).
+setup_type(sportsbar,300,sportsbar,1,average).
 setup_type(disco,300,disco,1,gay).
 
-setup_type(wmale25,100,sportsbar,3,wmale25).
+setup_type(average,100,sportsbar,3,average).
 setup_type(gay,100,disco,5,gay).
 setup_type(christian,100,church,5,christian).
 
@@ -100,12 +100,15 @@ noun_state(P1,X,Y,NounTT,EmoIcon,BodyIcon,ToolTip):-
    reaction_icon(P1,EmoIcon),
    noun_info(P1,ToolTip))).
 
-body_icon(P1,BodyIcon):-gender(P1,G),noun_type(P1,T),body_icon(G,T,BodyIcon).
+body_icon(P1,BodyIcon):-gender(P1,G),noun_type(P1,T),body_icon(G,T,BodyIcon),!.
 
+body_icon(_,average,'wmale25.PNG').
 body_icon(male,priest,'WPreac.png').
 body_icon(_,X,G):-atom_concat(X,'.PNG',G).
+body_icon(male,_,'wmale25.PNG').
 
 :-dynamic(known_gender/2).
+known_gender(priest1,male).
 gender(P1,G):- known_gender(P1,G),!.
 gender(P1,G):- (0 is random(2)->G=male;G=female),assert(known_gender(P1,G)),!.
 
@@ -139,17 +142,20 @@ drv(_,_,0.01).
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
 
-
-reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest waare male of females posing as males
-reaction_icon_typed(_P1,_G,_T,_Emo,_EmoIconPNG):-fail.
+reaction_icon_typed(_P1,male,_,happy,'WhMale_Happy.png').
+reaction_icon_typed(_P1,female,_,happy,'WWoman_Happy.png').
+reaction_icon_typed(_P1,male,_,angry,'WhMale_Angry.png').
+reaction_icon_typed(_P1,female,_,angry,'WWoman_Angry.png').
+reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest are male or females posing as males
+reaction_icon_typed(_P1,_G,priest,happy,'WPreac_Happy.png').
 
 reaction_icon(P1,EmoIconPNG):-
-   noun_emo_most(P1,Emo,_Strengh),
+  notrace(( noun_emo_most(P1,Emo,_Strengh))),
    gender(P1,G),noun_type(P1,T),
    reaction_icon_typed(P1,G,T,Emo,EmoIconPNG),!.
 
 reaction_icon(P1,EmoIconPNG):-
-   noun_emo_most(P1,Emo,Strengh),
+   notrace((noun_emo_most(P1,Emo,Strengh))),
    strengh_scale(Strengh,SS),
    atom_concat(Emo,SS,EmoIcon),
    atom_concat(EmoIcon,'.PNG',EmoIconPNG).
@@ -160,13 +166,13 @@ is_emo(fear).
 is_emo(happy).
 
 type_react(gay,gay,happy).
-type_react(wmale25,gay,fear).
+type_react(average,gay,fear).
 type_react(christian,gay,anger).
-type_react(gay,wmale25,happy).
-type_react(wmale25,wmale25,neutral).
-type_react(christian,wmale25,neutral).
+type_react(gay,average,happy).
+type_react(average,average,neutral).
+type_react(christian,average,neutral).
 type_react(gay,christian,fear).
-type_react(wmale25,christian,happy).
+type_react(average,christian,happy).
 type_react(christian,christian,happy).
 
 strengh_scale(_,1).
@@ -229,7 +235,7 @@ interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!. %%,make. % to check for changed disk files!
+move_all_one_sec:-!, make. % to check for changed disk files!
 
 move_for_one_sec(P1):- 
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
