@@ -97,8 +97,8 @@ reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
 closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
      loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
 
-type_react(T1,T1,happy).
-type_react(T1,T2,fear).
+type_react(T1,T2,happy):-T1==T2.
+type_react(_T1,_T2,fear).
 strengh_scale(_,1).
 
 % -----------------------
@@ -107,7 +107,7 @@ strengh_scale(_,1).
 
 % random_loc/2
 
-random_loc(X,Y):-world_range(SX,SY,EX,EY),random_loc(SX,SY,EX,EY,X,Y).
+random_loc(X,Y):-world_range(SX,SY,EX,EY,_),random_loc(SX,SY,EX,EY,X,Y).
 
 %todo use circle  instead of square
 random_loc(SX,SY,EX,EY,X,Y):-random_between(SX,EX,X),random_between(SY,EY,Y).
@@ -120,7 +120,7 @@ clear_world:-
               retractall(loc(_,_,_)),retractall(loc_goal(_,_,_)),
               retractall(noun_type(_,_)).
 
-add_persons_places:- setup_type(Priest,Range200,FavLoc,Num,StereoType), 
+add_persons_places:- setup_type(Priest,_Range200,_FavLoc,Num,_StereoType), 
       between(1,N,Num),atom_concat(Priest,N,Whatnot),assert(noun_type(Whatnot,Priest)),
       random_loc(X,Y),assert(loc(Whatnot,X,Y)),fail.
 
