@@ -192,6 +192,8 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 % world play preds
 % -----------------------
 :-dynamic(started_move_threads/0).
+:- dynamic movement_thread/1.
+
 start_move_threads:-started_move_threads,!.
 start_move_threads:-
    asserta(started_move_threads),
@@ -206,17 +208,39 @@ stop_move_threads:- retract(movement_thread(ID)),thread_signal(ID,thread_exit(ki
 stop_move_threads.
 
 move_all_thread:-repeat,sleep(20),once(move_all),fail.
-interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
+interpolate_thread:-
+	repeat,
+	sleep(1),
+	catch(once(move_all_one_sec),
+	     Oops,
+	     debug(vworld_ticks, 'Error in move_all_one_sec ~w', [Oops])),
+	debug(vworld_ticks, 'tick', []),
+	fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!. make. % to check for changed disk files!
+
+in_test_annies_work_mode(true).
+
+move_for_one_sec(P1) :-
+   in_test_annies_work_mode(true),
+   !,
+   loc(P1, X1, Y1),
+   X is X1 + 30,
+   Y is Y1 + 50,
+   set_loc(P1, X, Y),
+   (
+       P1 \= priest1
+   ;
+       debug(vworld_ticks, 'priest1 at (~w,~w)', [X,Y])
+   ).
 
 move_for_one_sec(P1):-
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
    loc(P1,X1,Y1),
    get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
+
    set_loc(P1,X2,Y2),!.
 
 move_for_one_sec(P1) :-
