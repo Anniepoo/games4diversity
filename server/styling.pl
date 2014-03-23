@@ -14,6 +14,13 @@ user:head(desktop, Head) -->
 		 Head
                   ])).
 
+user:head(desktop_game, Head) -->
+        html(head([
+		 \html_requires(css('gamejam.css')),
+		 \html_requires(css('desktop.css')),
+		 Head
+                  ])).
+
 user:head(desktop, Head) -->
         html(head([
 		 \html_requires(css('gamejam.css')),
@@ -23,9 +30,14 @@ user:head(desktop, Head) -->
 
 %
 user:body(desktop, Body) -->
-        html(body([ Body
+        html(body(class(desktop), [ Body
                   ])).
 
+user:body(desktop_game, Body) -->
+        html(body(class([desktop, game]), [ Body
+                  ])).
+
+
 user:body(mobile, Body) -->
-        html(body([ Body
+        html(body(class(mobile), [ Body
                   ])).

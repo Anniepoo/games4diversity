@@ -9,23 +9,28 @@
 
 user:head(desktop, Head) -->
         html(head([
-		 \html_requires(css('crane.css')),
+		 \html_requires(css('gamejam.css')),
 		 \html_requires(css('desktop.css')),
 		 Head
                   ])).
 
 user:head(desktop, Head) -->
         html(head([
-		 \html_requires(css('crane.css')),
+		 \html_requires(css('gamejam.css')),
 		 \html_requires(css('mobile.css')),
 		 Head
                   ])).
 
 %
 user:body(desktop, Body) -->
-        html(body([ Body
+        html(body(class(desktop), [ Body
                   ])).
 
+user:body(desktop_game, Body) -->
+        html(body(class([desktop, game]), [ Body
+                  ])).
+
+
 user:body(mobile, Body) -->
-        html(body([ Body
+        html(body(class(mobile), [ Body
                   ])).
