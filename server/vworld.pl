@@ -45,10 +45,9 @@ world_range(1,1,1000,1000,200).
 % -----------------------
 % External API
 % -----------------------
-
+   
 % returns a list
-
-get_vworld(List):- P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List), debug(vworld, 'list is ~w', [List]).
+get_vworld(ListO):-  P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List),!,ListO=List.
 
 set_loc_goal(P1,X1,Y1):-
    to_int(X1,X2),
@@ -75,9 +74,9 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
 noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
-noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):-
+noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):- 
    noun_type(P1,Body),
-   once((loc(P1,X,Y),
+   once((loc(P1,X,Y), 
          noun_type_type(P1,NounTT),
    atom_concat(Body,'.PNG',BodyIcon),
    reaction_icon(P1,EmoIcon))).
@@ -93,7 +92,7 @@ noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):-
 
 reaction(P1,P2,Emo,Strengh):-
    loc(P1,X1,Y1),
-   loc(P2,X2,Y2),
+   loc(P2,X2,Y2), 
    dist(X1,Y1,X2,Y2,Strengh),
    noun_react(P1,P2,Emo).
 
@@ -145,6 +144,7 @@ add_persons_places.
 assert_now(X):-debugFmt(add(X)),assert(X).
 retractall_now(X):-debugFmt(del(X)),retractall(X).
 
+debugFmt(_):-!.
 debugFmt(X):-debugFmt('Debug: ~w.~n',[X]).
 
 debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
@@ -200,7 +200,7 @@ make_between(In,Low,_High,Out):-In < Low,!,Out==Low.
 make_between(In,_Low,High,Out):-In > High,!,Out==High.
 make_between(In,_Low,_High,In).
 
-change_loc_goal(P1):-
+change_loc_goal(P1):- 
    loc(P1, X1,Y1),!,
    world_range(SX,SY,EX,EY,DistPer20),
    GoDist is random(DistPer20),
@@ -210,7 +210,7 @@ change_loc_goal(P1):-
    make_between(Y2,SY,EY,Y3),
    set_loc_goal(P1,X3,Y3).
 
-change_loc_goal(P1):-
+change_loc_goal(P1):- 
    random_loc(X,Y),
    set_loc(P1, X,Y),
    set_loc_goal(P1,X,Y),!.

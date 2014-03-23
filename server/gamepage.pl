@@ -51,7 +51,7 @@ player_id(1).
 
 characters -->
 	{
-	     get_vworld(Nouns)
+	     vworld:get_vworld(Nouns)
         },
 	a_character(Nouns).
 
