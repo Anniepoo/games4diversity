@@ -55,6 +55,8 @@ http:location(pldoc, root('gamejam/help/source'), [priority(10)]).
 % so it doesn't collide with pldoc
 :-ensure_loaded(load).
 :- use_module(gamejam).
+:- use_module(vworld).
+:- reset_world.
 
 % Now we can start pldoc. This starts our application server
 % as well, a workaround for one server per process

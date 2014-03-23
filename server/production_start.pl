@@ -47,6 +47,8 @@ force_right_directory :-
 
 % First we import the abstract path stuff
 :- use_module(library(http/http_path)).
+:- use_module(vworld).
+:- reset_world.
 
 http:location(pldoc, root('crane/help/source'), [priority(10)]).
 

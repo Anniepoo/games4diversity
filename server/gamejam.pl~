@@ -22,9 +22,9 @@ version) or load.pl (production).
 :- use_module(library(http/http_dispatch)).
 
 :- setting(debug_port, positive_integer, 14000,
-	   'Port to run the Crane Game on in debug mode.').
+	   'Port to run the Gamejam Game on in debug mode.').
 :- setting(production_port, positive_integer, 14000,
-	   'Port to run the Crane Game on in production mode.').
+	   'Port to run the Gamejam Game on in production mode.').
 :- load_settings('settings.conf').
 
 %%    gamejam_game_debug_port(-Port:int) is semidet

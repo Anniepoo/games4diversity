@@ -20,6 +20,7 @@ version) or load.pl (production).
 :- use_module(library(http/thread_httpd)).
 % and the standard handler dispatcher
 :- use_module(library(http/http_dispatch)).
+:- use_module(vworld).
 
 :- setting(debug_port, positive_integer, 14000,
 	   'Port to run the Gamejam Game on in debug mode.').
@@ -56,6 +57,7 @@ gamejam_game_server :-
 %	@arg Port the port number to start on
 %
 gamejam_game_server(Port) :-
+	reset_vworld,
 	format('Starting gamejam_game server on ~w', [Port]),
         http_server(http_dispatch, [port(Port)]).
 
