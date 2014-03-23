@@ -228,8 +228,11 @@ get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan2(DY,DX)
 set_loc(P1,X1,Y1):-
    to_int(X1,X2),
    to_int(Y1,Y2),
+   world_range(SX,SY,EX,EY,_),
+   make_between(X2,SX,EX,X3),
+   make_between(Y2,SY,EY,Y3),
    retractall(loc(P1,_,_)),
-   assert(loc(P1,X2,Y2)).
+   assert(loc(P1,X3,Y3)).
 
 to_int(X1,X2):-X2 is round(X1).
 
