@@ -47,7 +47,7 @@ world_range(1,1,1000,1000,200).
 % -----------------------
    
 % returns a list
-get_vworld(List):- P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List).
+get_vworld(ListO):-  P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List),!,ListO=List.
 
 set_loc_goal(P1,X1,Y1):-
    to_int(X1,X2),
