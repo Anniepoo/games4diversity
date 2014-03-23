@@ -6,6 +6,8 @@
 :- use_module(library(sandbox)).
 :- use_module(pengine_sandbox:vworld_apis).
 
+:- style_check(+discontiguous).
+
 % -----------------------
 % Ontology and config
 % -----------------------
@@ -20,6 +22,7 @@ is_loc_type(church).
 is_loc_type(sportsbar).
 is_loc_type(disco).
 
+nop(_).
 
 % setup_type(PType,EffectRange,Haunt,Create,Cate).
 setup_type(priest,200,church,1,christian).
@@ -105,7 +108,7 @@ reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
    atom_concat(EmoIcon,'.PNG',EmoIconPNG).
 
 closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
-     loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
+     loc(P1,X1,Y1), loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
 
 type_react(wmale25,gay,fear).
 type_react(T1,T2,happy):-T1==T2.
@@ -172,9 +175,9 @@ interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
 move_all_one_sec:-!.
 
-move_for_one_sec(P1):- fail,
+move_for_one_sec(P1):- 
+   loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
    loc(P1,X1,Y1),
-   loc_goal(P1,X3,Y3),
    get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
@@ -182,38 +185,60 @@ move_for_one_sec(P1):- fail,
 move_for_one_sec(P1) :-
    loc(P1,X1,Y1),
    setof(P, noun_type_type(P, person), People), 
-   lennard_jones(P1, People, 0,0, FX, FY),
+   lennard_jones_m(P1, People, 0,0, FX, FY),
    speed_cofactor(S),
    X2 is X1 + FX * S,
    Y2 is Y1 + FY * S,
    set_loc(P1,X2,Y2),!,
    dist(X1,Y1,X2,Y2,D),
-   debugFmt('~w trying move ~w to get from ~w,~w to ~w,~w ~n',[P1, D, X1,Y1,X2,Y2]).
+   nop(debugFmt('~w trying move ~w to get from ~w,~w to ~w,~w ~n',[P1, D, X1,Y1,X2,Y2])).
 
 
-% this keeps us out of some very ugly edge cases as we get near R = 0
-stability(8.0).
+
+
+type_sign(P1,P2,-1.0):-noun_stype(P1,S1),noun_stype(P2,S2),S1==S2,!.
+type_sign(_P1,_P2,1.0).
+
 speed_cofactor(200.0).
-lj_coefficients(4096.0, -256000.0).
 
-lennard_jones(_P, [], FInX, FInY, FInX, FInY).
-lennard_jones(P, [P|T], FInX, FInY, FX, FY) :-
-    lennard_jones(P, T, FInX, FInY, FX, FY).
-lennard_jones(P, [B|T], FInX, FInY, FX, FY) :-
-    lj_coefficients(LJA, LJB),
-    dist(P, B, R),
+stability(tension,_P,_B,8.0):-!.
+stability(_,_,_,8.0). % this keeps us out of some very ugly edge cases as we get near R = 0
+
+mag(_Type,P1,P2,Sign) :- type_sign(P1,P2,Sign),!.
+
+lj_coefficients(move,_,_,4096.0, -256000.0).
+lj_coefficients(tension,_,_,4096.0, -256000.0).
+
+
+  
+% movement version
+lennard_jones_m(P, T, NFX, NFY, FX, FY):-lennard_jones(move, P, T, NFX, NFY, FX, FY).
+
+% adversion weighted
+lennard_jones_a_w(P, T, NFX, NFY, FX, FY):-
+   lennard_jones(tension, P, T, NFX, NFY, FX, FY),!.
+
+   
+lennard_jones(_Type,_P, [], FInX, FInY, FInX, FInY).
+lennard_jones(Type,P, [P|T], FInX, FInY, FX, FY) :- % skip oneself
+    lennard_jones(Type,P, T, FInX, FInY, FX, FY).
+lennard_jones(Type,P, [B|T], FInX, FInY, FX, FY) :-
+    dist(Type, P, B, R),
+    lj_coefficients(Type,P,B,LJA, LJB),
     unit_vector(P, B, R, UX, UY),
-    NFX is FInX + UX * ( LJA / R / R + LJB / R / R / R ),
-    NFY is FInY + UY * ( LJA / R / R + LJB / R / R / R ),
-    lennard_jones(P, T, NFX, NFY, FX, FY).
+    RFA is ( LJA / R / R + LJB / R / R / R ),
+    NFX is FInX + UX * RFA,
+    NFY is FInY + UY * RFA,
+    lennard_jones(Type,P, T, NFX, NFY, FX, FY).
 
-dist(P, B, R) :-
-    stability(Stability),
+dist(Type, P, B,  R) :-
+   stability(Type, P, B, Stability),
+   mag(Type, P, B, Mag),
     loc(P, XA, YA),
     loc(B, XB, YB),
     DX is XA - XB,
         DY is YA - YB,
-    R is sqrt(DX * DX + DY * DY) + Stability.
+    R is (sqrt(DX * DX + DY * DY)*Mag) + Stability.
     
 unit_vector(P, B, R, UX, UY) :-
     loc(P, XA, YA),
