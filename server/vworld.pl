@@ -147,10 +147,9 @@ move_all:-debugFmt('completed to move_all!'),fail.
 move_all:-!.
 
 
-make_between(In,Low,High,Out):-between(Low,High,In),!,Out=In.
 make_between(In,Low,_High,Out):-In < Low,!,Out==Low.
 make_between(In,_Low,High,Out):-In > High,!,Out==High.
-make_between(In,Low,High,Out):-throw(make_between(In,Low,High,Out)).
+make_between(In,Low,High,In).
 
 change_loc_goal(P1):- 
    loc(P1, X1,Y1),!,
