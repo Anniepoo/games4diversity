@@ -135,11 +135,15 @@ is_emo(neutral).
 is_emo(fear).
 is_emo(happy).
 
-type_react(wmale25,gay,anger).
-type_react(T1,T2,happy):-T1==T2.
-type_react(T1,T2,neutral):-T1==T2.
-type_react(_T1,_T2,fear):-!.
-type_react(_T1,_T2,neutral):-!.
+type_react(gay,gay,happy).
+type_react(wmale25,gay,fear).
+type_react(christian,gay,anger).
+type_react(gay,wmale25,happy).
+type_react(wmale25,wmale25,neutral).
+type_react(christian,wmale25,neutral).
+type_react(gay,christian,fear).
+type_react(wmale25,christian,happy).
+type_react(christian,christian,happy).
 
 strengh_scale(_,1).
 
