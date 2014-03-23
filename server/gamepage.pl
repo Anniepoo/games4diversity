@@ -18,6 +18,7 @@ pengine calls.
 :- use_module(library(http/html_head)).
 :- use_module(resources).
 :- use_module(vworld).
+:- use_module(commbyajax).
 
 :- http_handler(root(game), game_page_handler, [id(game)]).
 
@@ -34,7 +35,9 @@ game_page_handler(Request) :-
 game_page_handler_(_Request) :-
 	player_id(ID),
 	reply_html_page(desktop_game,
-			[meta([ 'http-equiv'(refresh),content(1)]),title('Crowd Pleasing')],
+			[
+			    % meta([ 'http-equiv'(refresh),content(1)]),
+			    title('Crowd Pleasing')],
 			\game_body(ID)).
 
 game_body(_ID) -->
@@ -42,6 +45,7 @@ game_body(_ID) -->
 	   \html_requires(jquery),
 	   \html_requires(pengine),
 	   \html_requires(vworld_update),
+%	   \comm_by_ajax,
 	   div(id(main), [\characters])
 	]).
 
@@ -63,6 +67,6 @@ a_character([noun_state(Name,X,Y,person, EmoIcon,BodyIcon, ToolTip)| Rest]) -->
 		 ])),
 	a_character(Rest).
 a_character([noun_state(_,_,_,place,_,_,_) | Rest]) -->
-	a_character(Rest).          
-                                          
+	a_character(Rest).
+
 % get_vworld([noun_state(P1,X,Y,EmoIcon,BodyIcon),noun_state(P1,X,Y,EmoIcon,BodyIcon),...])                              "

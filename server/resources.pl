@@ -33,3 +33,4 @@
 :-html_resource(pengine, [virtual(true), requires([js('pengines.js')])]).
 :-html_resource(vworld_update, [ordered(true), virtual(true), requires([jquery, pengine, js('vworldupdate.js')])]).
 :-html_resource(refresh_page, [ordered(true), virtual(true), requires([jquery, js('pagerefresh.js')])]).
+:-html_resource(ajaxupdate, [ordered(true), virtual(true), requires([jquery, js('pageupdate.js')])]).

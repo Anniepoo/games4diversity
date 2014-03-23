@@ -12,3 +12,4 @@
 :- ensure_loaded(styling).
 :- ensure_loaded(main_pages).
 :- ensure_loaded(gamepage).
+
