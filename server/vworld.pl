@@ -1,4 +1,4 @@
-:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]).
+:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3,is_loc_type/1,noun_type/2]).
 
 % -----------------------
 % Ontology and config
@@ -41,7 +41,7 @@ world_range(1,1,1000,1000,200).
 % -----------------------
    
 % returns a list
-get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
+get_vworld(List):- P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List).
 
 set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert_now(loc_goal(P1,X,Y)).
 
@@ -56,7 +56,6 @@ reset_world :- clear_world, add_persons_places.
 % -----------------------
 
 :-dynamic(noun_type/2).
-:-dynamic(place_type/2).
 
 noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
@@ -64,9 +63,10 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 % loc(Place,X,Y).
 :-dynamic(loc/3).
 
+noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
-
-noun_state(P1,X,Y,EmoIcon,BodyIcon):- noun_type(P1,Body),not(is_loc_type(Body)),
+noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):- noun_type(P1,Body),
+   noun_type_type(P1,NounTT),
    once((loc(P1,X,Y), 
    atom_concat(Body,'.PNG',BodyIcon),
    reaction_icon(P1,EmoIcon))).
@@ -139,6 +139,35 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 % -----------------------
 % world play preds
 % -----------------------
+:-dynamic(started_move_threads/0).
+start_move_threads:-started_move_threads,!.
+start_move_threads:-
+   asserta(started_move_threads),
+   thread_create(move_all_thread,ID1,[at_exit(retract_self)]),
+   thread_create(interpolate_thread,ID2,[at_exit(retract_self)]),
+   asserta(movement_thread(ID1)),
+   asserta(movement_thread(ID2)).
+
+kill_move_threads:- retract(movement_thread(ID)),thread_signal(ID,)
+
+move_all_thread:-repeat,sleep(20),once(move_all),fail.
+interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
+
+
+move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1).
+
+move_for_one_sec(P1):-
+   loc(P1,X1,Y1),
+   loc_goal(P1,X3,Y3),
+   get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
+   carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
+   set_loc(P1,X2,Y2),!.
+
+get_polar_coords(DX,XY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan(DY/DX).
+
+set_loc(P1,X2,Y2):-
+   retractall(loc(P1,_,_)),
+   assert(loc(P1,X2,Y2)).
 
 
 move_all:-debugFmt('startring to move_all!'),fail.
