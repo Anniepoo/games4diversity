@@ -96,12 +96,24 @@ noun_state(P1,X,Y,NounTT,EmoIcon,BodyIcon,ToolTip):-
    noun_type(P1,Body),
    once((loc(P1,X,Y),
          noun_type_type(P1,NounTT),
-   atom_concat(Body,'.PNG',BodyIcon),
+   once((body_icon(P1,Body,BodyIcon))),
    reaction_icon(P1,EmoIcon),
    noun_info(P1,ToolTip))).
 
+body_icon(P1,BodyIcon):-gender(P1,G),noun_type(P1,T),body_icon(G,T,BodyIcon).
 
-noun_info(P1,Info):- ignore(noun_emo_vectors(P1,EmoVectors)), sformat(Info,'~w',[info(P1,EmoVectors)]),!.
+body_icon(male,priest,'WPreac.png').
+body_icon(_,X,G):-atom_concat(X,'.PNG',G).
+
+:-dynamic(known_gender/2).
+gender(P1,G):- known_gender(P1,G),!.
+gender(P1,G):- (0 is random(2)->G=male;G=female),assert(known_gender(P1,G)),!.
+
+
+
+
+
+noun_info(P1,Info):-body_icon(P1,BI),reaction_icon(P1,RI),gender(P1,G), ignore(noun_emo_vectors(P1,EmoVectors)), sformat(Info,'~w',[info(G,P1,BI,RI,EmoVectors)]),!.
 noun_info(P1,P1).
 
 % place a Person is traveling to
@@ -125,6 +137,16 @@ drv(_,_,0.01).
 
 
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
+
+
+
+reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest waare male of females posing as males
+reaction_icon_typed(_P1,_G,_T,_Emo,_EmoIconPNG):-fail.
+
+reaction_icon(P1,EmoIconPNG):-
+   noun_emo_most(P1,Emo,_Strengh),
+   gender(P1,G),noun_type(P1,T),
+   reaction_icon_typed(P1,G,T,Emo,EmoIconPNG),!.
 
 reaction_icon(P1,EmoIconPNG):-
    noun_emo_most(P1,Emo,Strengh),
@@ -207,7 +229,7 @@ interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!. make. % to check for changed disk files!
+move_all_one_sec:-!. %%,make. % to check for changed disk files!
 
 move_for_one_sec(P1):- 
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
