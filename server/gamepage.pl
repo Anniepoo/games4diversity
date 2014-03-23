@@ -40,6 +40,8 @@ game_page_handler_(_Request) :-
 game_body(_ID) -->
 	html([
 	   \html_requires(jquery),
+	   \html_requires(pengine),
+	   \html_requires(vworld_update),
 	   div(id(main), [\characters])
 	]).
 

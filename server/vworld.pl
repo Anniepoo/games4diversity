@@ -39,7 +39,6 @@ move_every(4).
 world_range(1,1,1000,1000,200).
 
 
-
 % -----------------------
 % External API
 % -----------------------
@@ -54,7 +53,7 @@ reset_world :- clear_world, add_persons_places.
 
 % clear_world
 % add_persons_places
-
+
 
 % -----------------------
 % existential predicates
