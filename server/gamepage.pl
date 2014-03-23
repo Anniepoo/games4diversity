@@ -40,6 +40,8 @@ game_page_handler_(_Request) :-
 game_body(_ID) -->
 	html([
 	   \html_requires(jquery),
+	   \html_requires(pengine),
+	   \html_requires(vworld_update),
 	   div(id(main), [\characters])
 	]).
 
@@ -54,11 +56,13 @@ characters -->
 	a_character(Nouns).
 
 a_character([]) --> [].
-a_character([noun_state(Name,X,Y,EmoIcon,BodyIcon) | Rest]) -->
+a_character([noun_state(Name,X,Y,person, EmoIcon,BodyIcon) | Rest]) -->
 	html(div([class(noun), style(['left: ~wpx; top: ~wpx'-[X,Y]]), id(Name)], [
 		     img([class(body), src(['/img/~w'-BodyIcon])]),
 		     img([class(emo), src(['/img/~w'-EmoIcon])])
 		 ])),
+	a_character(Rest).
+a_character([noun_state(_,_,_,place,_,_) | Rest]) -->
 	a_character(Rest).
 
 % get_vworld([noun_state(P1,X,Y,EmoIcon,BodyIcon),noun_state(P1,X,Y,EmoIcon,BodyIcon),...])

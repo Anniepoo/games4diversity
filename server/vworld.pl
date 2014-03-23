@@ -2,6 +2,10 @@
           set_loc_goal/3,is_loc_type/1,
             noun_type/2,start_move_threads/0,stop_move_threads]).
 
+:- use_module(library(pengines)).
+:- use_module(library(sandbox)).
+:- use_module(pengine_sandbox:vworld_apis).
+
 % -----------------------
 % Ontology and config
 % -----------------------
@@ -38,7 +42,6 @@ move_every(4).
 world_range(1,1,1000,1000,200).
 
 
-
 % -----------------------
 % External API
 % -----------------------
@@ -55,6 +58,8 @@ reset_world :- clear_world, add_persons_places.
 
 % clear_world
 % add_persons_places
+
+
 % -----------------------
 % existential predicates
 % -----------------------

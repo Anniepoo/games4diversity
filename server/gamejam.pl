@@ -57,7 +57,7 @@ gamejam_game_server :-
 %	@arg Port the port number to start on
 %
 gamejam_game_server(Port) :-
-	reset_vworld,
+	reset_world,
 	format('Starting gamejam_game server on ~w', [Port]),
         http_server(http_dispatch, [port(Port)]).
 
