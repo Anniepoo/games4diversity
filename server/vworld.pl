@@ -38,7 +38,7 @@ setup_type(christian,100,church,5,christian).
 move_every(4).
 
 % xS,yS - xE,yE, step every 20 seconds.
-world_range(1,1,1000,1000,200).
+world_range(1,1,1000,1000,2000).
 
 
 % -----------------------
@@ -180,7 +180,6 @@ move_for_one_sec(P1):-
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
 
-/*
 move_for_one_sec(P1) :-
    loc(P1,X1,Y1),
    setof(P, noun_type(P, person), People),
@@ -200,7 +199,7 @@ lennard_jones(P, [B|T], FInX, FInY, FX, FY) :-
 	dist(P, B, R),
 	unit_vector(P, B, R, UX, UY),
 	NFX is FInX + UX * ( LJA / R / R + LJB / R / R / R ),
-	NFY is FInY + UY * ( LJB / R / R + LJB / R / R / R ),
+	NFY is FInY + UY * ( LJA / R / R + LJB / R / R / R ),
 	lennard_jones(P, T, NFX, NFY, FX, FY).
 
 lj_coefficients(4096.0, - 256000.0).
@@ -222,8 +221,6 @@ unit_vector(P, B, R, UX, UY) :-
         DY is YA - YB,
 	UX is DX / R,
 	UY is DY / R.
-
-*/
 
 get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan2(DY,DX).
 

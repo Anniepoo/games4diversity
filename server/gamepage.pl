@@ -18,6 +18,7 @@ pengine calls.
 :- use_module(library(http/html_head)).
 :- use_module(resources).
 :- use_module(vworld).
+:- use_module(library(http/js_write)).
 
 :- http_handler(root(game), game_page_handler, [id(game)]).
 
@@ -34,8 +35,12 @@ game_page_handler(Request) :-
 game_page_handler_(_Request) :-
 	player_id(ID),
 	reply_html_page(desktop_game,
-			[meta([ 'http-equiv'(refresh),content(2)]),title('Crowd Pleasing')],
+			[\refresh_page, title('Crowd Pleasing')],
 			\game_body(ID)).
+
+refresh_page -->
+%	html(meta([ 'http-equiv'(refresh),content(2)])).
+        html(\html_requires(refresh_page)).
 
 game_body(_ID) -->
 	html([
