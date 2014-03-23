@@ -67,9 +67,10 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
 noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
-noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):- noun_type(P1,Body),
-   noun_type_type(P1,NounTT),
+noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):- 
+   noun_type(P1,Body),
    once((loc(P1,X,Y), 
+         noun_type_type(P1,NounTT),
    atom_concat(Body,'.PNG',BodyIcon),
    reaction_icon(P1,EmoIcon))).
 
@@ -155,7 +156,7 @@ retract_self:-thread_self(ID),retractall(movement_thread(ID)).
 stop_move_threads:- retract(movement_thread(ID)),thread_signal(ID,thread_exit(kill_move_threads)),fail.
 stop_move_threads.
 
-move_all_thread:-repeat,sleep(20),once(move_all1),fail.
+move_all_thread:-repeat,sleep(20),once(move_all),fail.
 interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
@@ -177,11 +178,12 @@ set_loc(P1,X1,Y1):-
    retractall(loc(P1,_,_)),
    assert(loc(P1,X2,Y2)).
 
+to_int(X1,X2):-X2 is round(X1).
 
-move_all1:-debugFmt('startring to move_all!'),fail.
-move_all1:-noun_type(P1,Type),not(is_loc_type(Type)),change_loc_goal(P1),fail.
-move_all1:-debugFmt('completed to move_all!'),fail.
-move_all1:-!.
+move_all:-debugFmt('startring to move_all!'),fail.
+move_all:-noun_type(P1,Type),not(is_loc_type(Type)),change_loc_goal(P1),fail.
+move_all:-debugFmt('completed to move_all!'),fail.
+move_all:-!.
 
 
 make_between(In,Low,_High,Out):-In < Low,!,Out==Low.
