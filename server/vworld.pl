@@ -1,3 +1,12 @@
+:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0]). 
+
+
+% returns a list 
+get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
+
+set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert(loc_goal(P1,X,Y)).
+   
+reset_world :- clear_world, add_persons_places.
 
 % -----------------------
 % Ontology and config
@@ -22,6 +31,10 @@ setup_type(activist,200,disco,1,gay).
 setup_type(gay,100,disco,5,gay).
 setup_type(basher,200,sportsbar,1,wmale25).
 setup_type(wmale25,100,sportsbar,3,wmale25).
+setup_type(church,0,church,1,christian).
+setup_type(sportsbar,0,sportsbar,1,wmale25).
+setup_type(disco,0,disco,1,gay).
+
 
 % every 20 seconds.
 move_every(20).
@@ -37,7 +50,7 @@ world_range(1,1,1000,1000,200).
 
 
 % returns a list 
-get_vworld(List):-P=noun_state(P1,X,Y,EmoIcon,BodyIcon), findall(P,P,List).
+get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
 
 set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert(loc_goal(P1,X,Y)).
    
@@ -51,13 +64,16 @@ reset_world :- clear_world, add_persons_places.
 % existential predicates
 % -----------------------
 
-:-dynamic(person_type/2).
+:-dynamic(noun_type/2).
 :-dynamic(place_type/2).
+
+noun_stype(P1,S1):-noun_type(P1,T1),
 
 % loc(Person,X,Y).
 % loc(Place,X,Y).
 :-dynamic(loc/3).
 
+move_all.
 
 noun_state(P1,X,Y,EmoIcon,BodyIcon):- 
    loc(P1,X,Y),  noun_type(P1,Body),
@@ -75,15 +91,16 @@ noun_state(P1,X,Y,EmoIcon,BodyIcon):-
 
 reaction(P1,P2,Emo,Strengh):-
      loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Strengh),
-   base_react(P1,P2,Emo).
+   noun_react(P1,P2,Emo).
 
 
-base_react(P1,P2,R):-person_type(P1,T1),person_type(P1,T2),type_react(T1,T2,R).
+noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
-reaction_icon(P1,EmoIcon):- closest_noun(P1,P2),
-reaction(P1,P2,Emo,Strengh),
-strengh_scale(Strengh,SS),
-atom_concat(Emo,SS,EmoIcon).
+reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2),
+   reaction(P1,P2,Emo,Strengh),
+   strengh_scale(Strengh,SS),
+   atom_concat(Emo,SS,EmoIcon),
+   atom_concat(EmoIcon,'.PNG',EmoIconPNG).
    
 closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
      loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
@@ -109,10 +126,10 @@ dist(X1,Y1,X2,Y2,D):- DX is X2-X1, DY is Y2-Y1, D is sqrt(DX*DX+DY*DY).
 
 clear_world:-
               retractall(loc(_,_,_)),retractall(loc_goal(_,_,_)),
-              retractall(person_type(_,_)),retractall(place_type(_,_)).
+              retractall(noun_type(_,_)).
 
 add_persons_places:- setup_type(Priest,Range200,FavLoc,Num,StereoType), 
-      between(1,N,Num),atom_concat(Priest,N,Whatnot),
+      between(1,N,Num),atom_concat(Priest,N,Whatnot),assert(noun_type(Whatnot,Priest)),
       random_loc(X,Y),assert(loc(Whatnot,X,Y)),fail.
 
 
