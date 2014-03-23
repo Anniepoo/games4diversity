@@ -118,7 +118,7 @@ reaction(P1,P2,Emo,Value):-noun_stype(P1,S1),noun_stype(P2,S2),!,type_react(S1,S
                                   dist(P1,P2,D),noun_type(P2,Type),type_effect_range(Type,R),
                                     drv(D , R, Value),!.
 drv(D,_R,0.0):- D < 1,!.
-drv(D,R,V):- D < R, V is R / D,!.
+drv(D,R,V):- D < R,  V is 3 *(R / D),!.
 drv(_,_,0.01).
 
 
