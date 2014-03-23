@@ -20,14 +20,15 @@ is_loc_type(disco).
 
 % setup_type(PType,EffectRange,Haunt,Create,Cate).
 setup_type(priest,200,church,1,christian).
-setup_type(christian,100,church,5,christian).
 setup_type(activist,200,disco,1,gay).
-setup_type(gay,100,disco,5,gay).
 setup_type(basher,200,sportsbar,1,wmale25).
-setup_type(wmale25,100,sportsbar,3,wmale25).
 setup_type(church,200,church,1,christian).
 setup_type(sportsbar,200,sportsbar,1,wmale25).
 setup_type(disco,200,disco,1,gay).
+
+setup_type(wmale25,100,sportsbar,3,wmale25).
+setup_type(gay,100,disco,5,gay).
+setup_type(christian,100,church,5,christian).
 
 
 % every 20 seconds.
@@ -102,8 +103,10 @@ reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
 closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
      loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
 
+type_react(wmale25,gay,fear).
 type_react(T1,T2,happy):-T1==T2.
 type_react(_T1,_T2,fear).
+
 strengh_scale(_,1).
 
 % -----------------------
@@ -171,7 +174,7 @@ move_for_one_sec(P1):-
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
 
-get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan(DY/DX).
+get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan2(DY,DX).
 
 set_loc(P1,X1,Y1):-
    to_int(X1,X2),
