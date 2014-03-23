@@ -22,6 +22,7 @@
 http:location(files, root(f), []).
 http:location(css, root(css), []).
 http:location(js, root(js), []).
+http:location(img, root(img), []).
 
 user:file_search_path(mobile_files, 'assets/mobile/html').
 user:file_search_path(desktop_files, 'assets/desktop/html').
@@ -47,7 +48,7 @@ user:file_search_path(img, 'assets/img').
 
 % handle /img/
 :- http_handler(img(.),
-		serve_files(js(.)) ,
+		serve_files(img(.)) ,
 		[prefix, priority(10)]).
 
 %%	serve_files(+FileLocation:abstract_file, +Request:request) is

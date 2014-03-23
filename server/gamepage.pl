@@ -55,9 +55,9 @@ characters -->
 
 a_character([]) --> [].
 a_character([noun_state(Name,X,Y,EmoIcon,BodyIcon) | Rest]) -->
-	html(div([class(noun), style(['left: ~wpx, top: ~wpx'-[X,Y]]), id(Name)], [
-		     img([class(body), src(BodyIcon)]),
-		     img([class(emo), src(EmoIcon)])
+	html(div([class(noun), style(['left: ~wpx; top: ~wpx'-[X,Y]]), id(Name)], [
+		     img([class(body), src(['/img/~w'-BodyIcon])]),
+		     img([class(emo), src(['/img/~w'-EmoIcon])])
 		 ])),
 	a_character(Rest).
 

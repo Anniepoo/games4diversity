@@ -1,4 +1,4 @@
-:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]). 
+:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]).
 
 % -----------------------
 % Ontology and config
@@ -6,7 +6,7 @@
 
 is_stereotype(christian).
 is_stereotype(gay).
-is_stereotype(wmale25).  
+is_stereotype(wmale25).
 % same as christian but wanted to make sure we handle a third.  Could have used sutypes of LGBT
 
 
@@ -29,7 +29,7 @@ setup_type(disco,0,disco,1,gay).
 
 
 % every 20 seconds.
-move_every(20).
+move_every(4).
 
 % xS,yS - xE,yE, step every 20 seconds.
 world_range(1,1,1000,1000,200).
@@ -41,14 +41,14 @@ world_range(1,1,1000,1000,200).
 % -----------------------
 
 
-% returns a list 
+% returns a list
 get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
 
 set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert_now(loc_goal(P1,X,Y)).
-   
+
 reset_world :- clear_world, add_persons_places.
 
-% clear_world 
+% clear_world
 % add_persons_places
 
 
@@ -71,7 +71,7 @@ noun_state(P1,X,Y,EmoIcon,BodyIcon):- noun_type(P1,Body),
    once((loc(P1,X,Y),
    atom_concat(Body,'.PNG',BodyIcon),
    reaction_icon(P1,EmoIcon))).
-	
+
 
 % place a Person is traveling to
 
@@ -93,7 +93,7 @@ reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
    strengh_scale(Strengh,SS),
    atom_concat(Emo,SS,EmoIcon),
    atom_concat(EmoIcon,'.PNG',EmoIconPNG).
-   
+
 closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
      loc(P1,X1,Y1),  loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
 
@@ -120,7 +120,7 @@ clear_world:-
               retractall(loc(_,_,_)),retractall(loc_goal(_,_,_)),
               retractall(noun_type(_,_)).
 
-add_persons_places:- setup_type(Priest,_Range200,_FavLoc,Num,_StereoType), 
+add_persons_places:- setup_type(Priest,_Range200,_FavLoc,Num,_StereoType),
       between(1,Num,N),atom_concat(Priest,N,Whatnot),assert_now(noun_type(Whatnot,Priest)),
       random_loc(X,Y),assert_now(loc(Whatnot,X,Y)),fail.
 add_persons_places.
