@@ -25,6 +25,7 @@ is_loc_type(disco).
 setup_type(priest,200,church,1,christian).
 setup_type(activist,200,disco,1,gay).
 setup_type(basher,200,sportsbar,1,wmale25).
+
 setup_type(church,300,church,1,christian).
 setup_type(sportsbar,300,sportsbar,1,wmale25).
 setup_type(disco,300,disco,1,gay).
@@ -169,12 +170,11 @@ move_all_thread:-repeat,sleep(20),once(move_all),fail.
 interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
-move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
+move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),once(move_for_one_sec(P1)),fail.
 move_all_one_sec:-!.
 
-move_for_one_sec(P1):- fail,
+move_for_one_sec(P1):-
    loc(P1,X1,Y1),
-   loc_goal(P1,X3,Y3),
    get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
@@ -182,7 +182,7 @@ move_for_one_sec(P1):- fail,
 move_for_one_sec(P1) :-
    loc(P1,X1,Y1),
    setof(P, noun_type_type(P, person), People), 
-   lennard_jones(P1, People, 0,0, FX, FY),
+   lennard_jones(P1, People, 0,0, FX, FY),!,
    speed_cofactor(S),
    X2 is X1 + FX * S,
    Y2 is Y1 + FY * S,
@@ -207,7 +207,7 @@ lennard_jones(P, [B|T], FInX, FInY, FX, FY) :-
     NFY is FInY + UY * ( LJA / R / R + LJB / R / R / R ),
     lennard_jones(P, T, NFX, NFY, FX, FY).
 
-dist(P, B, R) :-
+dist(P, B, R) :-    
     stability(Stability),
     loc(P, XA, YA),
     loc(B, XB, YB),
@@ -230,7 +230,7 @@ set_loc(P1,X1,Y1):-
    to_int(Y1,Y2),
    world_range(SX,SY,EX,EY,_),
    make_between(X2,SX,EX,X3),
-   make_between(Y2,SY,EY,Y3),
+   make_between(Y2,SY,EY,Y3),!,
    retractall(loc(P1,_,_)),
    assert(loc(P1,X3,Y3)).
 
