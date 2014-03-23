@@ -15,7 +15,6 @@ is_stereotype(gay).
 is_stereotype(wmale25).
 % same as christian but wanted to make sure we handle a third.  Could have used sutypes of LGBT
 
-
 % location type and EffectRange
 is_loc_type(church).
 is_loc_type(sportsbar).
@@ -180,6 +179,51 @@ move_for_one_sec(P1):-
    get_polar_coords(X3-X1,Y3-Y1,Angle,_GoDist),
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
+
+/*
+move_for_one_sec(P1) :-
+   loc(P1,X1,Y1),
+   setof(P, noun_type(P, person), People),
+   lennard_jones(P1, People, 0,0, FX, FY),
+   speed_cofactor(S),
+   X2 is X1 + FX * S,
+   Y2 is Y1 + FY * S,
+   set_loc(P1,X2,Y2),!.
+
+speed_cofactor(1.0).
+
+lennard_jones(P, [], FInX, FInY, FInX, FInY).
+lennard_jones(P, [P|T], FInX, FInY, FX, FY) :-
+	lennard_jones(P, T, FInX, FInY, FX, FY).
+lennard_jones(P, [B|T], FInX, FInY, FX, FY) :-
+	lj_coefficients(LJA, LJB),
+	dist(P, B, R),
+	unit_vector(P, B, R, UX, UY),
+	NFX is FInX + UX * ( LJA / R / R + LJB / R / R / R ),
+	NFY is FInY + UY * ( LJB / R / R + LJB / R / R / R ),
+	lennard_jones(P, T, NFX, NFY, FX, FY).
+
+lj_coefficients(4096.0, - 256000.0).
+
+% this keeps us out of some very ugly edge cases as we get near R = 0
+stability(8.0).
+
+dist(P, B, R) :-
+	stability(Stability),
+	loc(P, XA, YA),
+	loc(B, XB, YB),
+	DX is XA - XB,
+        DY is YA - YB,
+	R is sqrt(DX * DX + DY * DY) + Stability.
+unit_vector(P, B, R, UX, UY) :-
+	loc(P, XA, YA),
+	loc(B, XB, YB),
+	DX is XA - XB,
+        DY is YA - YB,
+	UX is DX / R,
+	UY is DY / R.
+
+*/
 
 get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan2(DY,DX).
 
