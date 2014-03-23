@@ -1,4 +1,4 @@
-:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0]). 
+:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]). 
 
 
 % returns a list 
@@ -67,7 +67,7 @@ reset_world :- clear_world, add_persons_places.
 :-dynamic(noun_type/2).
 :-dynamic(place_type/2).
 
-noun_stype(P1,S1):-noun_type(P1,T1),
+noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
 % loc(Person,X,Y).
 % loc(Place,X,Y).
