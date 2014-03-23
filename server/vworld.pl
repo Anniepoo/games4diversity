@@ -1,4 +1,6 @@
-:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3,is_loc_type/1,noun_type/2]).
+:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,
+          set_loc_goal/3,is_loc_type/1,
+            noun_type/2,start_move_threads/0,stop_move_threads]).
 
 % -----------------------
 % Ontology and config
@@ -148,13 +150,17 @@ start_move_threads:-
    asserta(movement_thread(ID1)),
    asserta(movement_thread(ID2)).
 
-kill_move_threads:- retract(movement_thread(ID)),thread_signal(ID,)
+retract_self:-thread_self(ID),retractall(movement_thread(ID)).
 
-move_all_thread:-repeat,sleep(20),once(move_all),fail.
+stop_move_threads:- retract(movement_thread(ID)),thread_signal(ID,thread_exit(kill_move_threads)),fail.
+stop_move_threads.
+
+move_all_thread:-repeat,sleep(20),once(move_all1),fail.
 interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
-move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1).
+move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
+move_all_one_sec:-!.
 
 move_for_one_sec(P1):-
    loc(P1,X1,Y1),
@@ -163,22 +169,24 @@ move_for_one_sec(P1):-
    carts_for_polar_ofset(X1,Y1,Angle,100,X2,Y2),
    set_loc(P1,X2,Y2),!.
 
-get_polar_coords(DX,XY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan(DY/DX).
+get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan(DY/DX).
 
-set_loc(P1,X2,Y2):-
+set_loc(P1,X1,Y1):-
+   to_int(X1,X2),
+   to_int(Y1,Y2),
    retractall(loc(P1,_,_)),
    assert(loc(P1,X2,Y2)).
 
 
-move_all:-debugFmt('startring to move_all!'),fail.
-move_all:-noun_type(P1,Type),not(is_loc_type(Type)),change_loc_goal(P1),fail.
-move_all:-debugFmt('completed to move_all!'),fail.
-move_all:-!.
+move_all1:-debugFmt('startring to move_all!'),fail.
+move_all1:-noun_type(P1,Type),not(is_loc_type(Type)),change_loc_goal(P1),fail.
+move_all1:-debugFmt('completed to move_all!'),fail.
+move_all1:-!.
 
 
 make_between(In,Low,_High,Out):-In < Low,!,Out==Low.
 make_between(In,_Low,High,Out):-In > High,!,Out==High.
-make_between(In,Low,High,In).
+make_between(In,_Low,_High,In).
 
 change_loc_goal(P1):- 
    loc(P1, X1,Y1),!,
@@ -192,7 +200,7 @@ change_loc_goal(P1):-
 
 change_loc_goal(P1):- 
    random_loc(X,Y),
-   assert_now(loc(P1, X,Y)),
+   set_loc(P1, X,Y),
    set_loc_goal(P1,X,Y),!.
 
 
@@ -201,4 +209,4 @@ carts_for_polar_ofset(X1,Y1,Angle,GoDist,X2,Y2):-X2 is X1 + cos(Angle)*GoDist,Y2
 %% move_all:-noun_type(P1,Type),
 
 
-
+:-at_initialization(start_move_threads).
