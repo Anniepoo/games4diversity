@@ -10,3 +10,7 @@ body {
 	height: 100%;
 	background-color: #ffffff;
 }
+
+body.game {
+	background-image: url("/img/Background.PNG");
+}
