@@ -1,7 +1,25 @@
-:- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,
-          set_loc_goal/3,is_loc_type/1,
-            noun_type/2,start_move_threads/0,stop_move_threads/0]).
+:- module(vworld, [
+            get_vworld/1,
+            reset_world/0,
+            clear_world/0,
+            add_persons_places/0,
+            move_all/0,
+            set_loc_goal/3,
+            is_loc_type/1,
+            noun_type/2,
+            start_move_threads/0,
+            stop_move_threads/0]).
 
+/** <module> The virtual world is ran here
+
+This file brokers the game state.
+
+@author Douglas R. Miles
+@author Anne Ogborn
+@license lgpl
+@version 0.1.0
+
+*/
 :- use_module(library(pengines)).
 :- use_module(library(sandbox)).
 :- use_module(pengine_sandbox:vworld_apis).
@@ -36,12 +54,11 @@ setup_type(wmale25,100,sportsbar,3,wmale25).
 setup_type(gay,100,disco,5,gay).
 setup_type(christian,100,church,5,christian).
 
+type_effect_range(PType,EffectRange):-setup_type(PType,EffectRange,_Haunt,_Create,_Cate).
 
-% every 20 seconds.
-move_every(4).
 
 % xS,yS - xE,yE, step every 20 seconds.
-world_range(1,200,1000,1000,2000).
+world_range(1,200,1000,1000,800).
 
 % -----------------------
 % External API
@@ -49,7 +66,7 @@ world_range(1,200,1000,1000,2000).
 
 % returns a list
 
-get_vworld(ListO):-  P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List),!,ListO=List.
+get_vworld(ListO):-  P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon,_ToolTip), findall(P,P,List),!,ListO=List.
 
 set_loc_goal(P1,X1,Y1):-
    to_int(X1,X2),
@@ -70,19 +87,22 @@ reset_world :- clear_world, add_persons_places.
 
 noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 
-% loc(Person,X,Y).
-% loc(Place,X,Y).
+% loc(Noun,X,Y).
 :-dynamic(loc/3).
 
 noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
-noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):-
+noun_state(P1,X,Y,NounTT,EmoIcon,BodyIcon,ToolTip):-
    noun_type(P1,Body),
    once((loc(P1,X,Y),
          noun_type_type(P1,NounTT),
    atom_concat(Body,'.PNG',BodyIcon),
-   reaction_icon(P1,EmoIcon))).
+   reaction_icon(P1,EmoIcon),
+   noun_info(P1,ToolTip))).
 
+
+noun_info(P1,Info):- ignore(noun_emo_vectors(P1,EmoVectors)), sformat(Info,'~w',[info(P1,EmoVectors)]),!.
+noun_info(P1,P1).
 
 % place a Person is traveling to
 
@@ -92,27 +112,34 @@ noun_state(P1,X,Y,NounTT, EmoIcon,BodyIcon):-
 % world util predicates
 % -----------------------
 
-reaction(P1,P2,Emo,Strengh):-
-   loc(P1,X1,Y1),
-   loc(P2,X2,Y2),
-   dist(X1,Y1,X2,Y2,Strengh),
-   noun_react(P1,P2,Emo).
+
+reaction(P1,P2,_Emo,Value):-P1=P2,!,Value=0.0.
+reaction(P1,P2,Emo,Value):-noun_stype(P1,S1),noun_stype(P2,S2),!,type_react(S1,S2,Emo),
+                                  dist(P1,P2,D),noun_type(P2,Type),type_effect_range(Type,R),
+                                    drv(D , R, Value),!.
+drv(D,_R,0.0):- D < 1,!.
+drv(D,R,V):- D < R, V is R / D,!.
+drv(_,_,0.01).
 
 
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
-reaction_icon(P1,EmoIconPNG):- closest_noun(P1,P2,_Close),
-   reaction(P1,P2,Emo,Strengh),
+reaction_icon(P1,EmoIconPNG):-
+   noun_emo_most(P1,Emo,Strengh),
    strengh_scale(Strengh,SS),
    atom_concat(Emo,SS,EmoIcon),
    atom_concat(EmoIcon,'.PNG',EmoIconPNG).
 
-closest_noun(P1,P2,Dist):- noun_type(P1,T1), noun_type(P2,T2), T1 \= T2,
-     loc(P1,X1,Y1), loc(P2,X2,Y2), dist(X1,Y1,X2,Y2,Dist).
+is_emo(anger).
+is_emo(neutral).
+is_emo(fear).
+is_emo(happy).
 
-type_react(wmale25,gay,fear).
+type_react(wmale25,gay,anger).
 type_react(T1,T2,happy):-T1==T2.
-type_react(_T1,_T2,fear).
+type_react(T1,T2,neutral):-T1==T2.
+type_react(_T1,_T2,fear):-!.
+%%type_react(_T1,_T2,neutral):-!.
 
 strengh_scale(_,1).
 
@@ -129,10 +156,11 @@ random_loc(SX,SY,EX,EY,X,Y):-random_between(SX,EX,X),random_between(SY,EY,Y).
 
 random_between(S,E,R):-Range is E - S, RM is random(Range),R is RM+S.
 
+dist( P, B,  R) :- loc(P, XA, YA),loc(B, XB, YB),DX is XA - XB,DY is YA - YB,R is sqrt(DX * DX + DY * DY).
+
 dist(X1,Y1,X2,Y2,D):- DX is X2-X1, DY is Y2-Y1, D is sqrt(DX*DX+DY*DY).
 
-clear_world:-
-              retractall_now(loc(_,_,_)),
+clear_world:- retractall_now(loc(_,_,_)),
               retractall_now(loc_goal(_,_,_)),
               retractall_now(noun_type(_,_)).
 
@@ -146,8 +174,8 @@ add_persons_places.
 assert_now(X):-debugFmt(add(X)),assert(X).
 retractall_now(X):-debugFmt(del(X)),retractall(X).
 
-debugFmt(_):-!.
-debugFmt(X):-debugFmt('Debug: ~w.~n',[X]).
+
+debugFmt(X):-nop(debugFmt('Debug: ~w.~n',[X])).
 
 debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 
@@ -173,7 +201,7 @@ interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!.
+move_all_one_sec:-!. make. % to check for changed disk files!
 
 move_for_one_sec(P1):- 
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
@@ -184,7 +212,7 @@ move_for_one_sec(P1):-
 
 move_for_one_sec(P1) :-
    loc(P1,X1,Y1),
-   setof(P, noun_type_type(P, person), People), 
+   setof(P, noun_type(P, _), People), 
    lennard_jones_m(P1, People, 0,0, FX, FY),
    speed_cofactor(S),
    X2 is X1 + FX * S,
@@ -192,6 +220,22 @@ move_for_one_sec(P1) :-
    set_loc(P1,X2,Y2),!,
    dist(X1,Y1,X2,Y2,D),
    nop(debugFmt('~w trying move ~w to get from ~w,~w to ~w,~w ~n',[P1, D, X1,Y1,X2,Y2])).
+
+noun_emo_most(P1,Emo,Strengh):-noun_emo_vectors(P1,[Strengh-Emo|_]).
+
+noun_emo_vectors(P1,EmoVectors):-
+      findall(Value-Emo,((is_emo(Emo),once((noun_emo_any(P1,Emo,Value))))),List),keysort(List,EmoVectorsR),reverse(EmoVectorsR,EmoVectors),!.
+
+noun_emo_any(P1,Emo,Value):-setof(P, noun_type(P, _), People),
+  rate_situation(Emo,P1,People,0.1,Value).
+
+rate_situation(_Type,_P, [], W, W).
+rate_situation(Type,P, [P|T], WIn, WOut) :- % skip oneself
+    rate_situation(Type,P, T, WIn, WOut).
+rate_situation(Type,P, [B|T], WIn, WOut) :-
+    reaction(P, B,Type, R),
+    WMid is WIn + R,
+    rate_situation(Type,P, T, WMid,WOut).
 
 
 
@@ -223,7 +267,7 @@ lennard_jones(_Type,_P, [], FInX, FInY, FInX, FInY).
 lennard_jones(Type,P, [P|T], FInX, FInY, FX, FY) :- % skip oneself
     lennard_jones(Type,P, T, FInX, FInY, FX, FY).
 lennard_jones(Type,P, [B|T], FInX, FInY, FX, FY) :-
-    dist(Type, P, B, R),
+    lj_dist(Type, P, B, R),
     lj_coefficients(Type,P,B,LJA, LJB),
     unit_vector(P, B, R, UX, UY),
     RFA is ( LJA / R / R + LJB / R / R / R ),
@@ -231,14 +275,11 @@ lennard_jones(Type,P, [B|T], FInX, FInY, FX, FY) :-
     NFY is FInY + UY * RFA,
     lennard_jones(Type,P, T, NFX, NFY, FX, FY).
 
-dist(Type, P, B,  R) :-
+lj_dist(Type, P, B,  R) :-
    stability(Type, P, B, Stability),
    mag(Type, P, B, Mag),
-    loc(P, XA, YA),
-    loc(B, XB, YB),
-    DX is XA - XB,
-        DY is YA - YB,
-    R is (sqrt(DX * DX + DY * DY)*Mag) + Stability.
+   dist(P,B,D),
+   R is (D*Mag) + Stability.
     
 unit_vector(P, B, R, UX, UY) :-
     loc(P, XA, YA),

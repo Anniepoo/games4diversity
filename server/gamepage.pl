@@ -34,7 +34,7 @@ game_page_handler(Request) :-
 game_page_handler_(_Request) :-
 	player_id(ID),
 	reply_html_page(desktop_game,
-			[meta([ 'http-equiv'(refresh),content(2)]),title('Crowd Pleasing')],
+			[meta([ 'http-equiv'(refresh),content(1)]),title('Crowd Pleasing')],
 			\game_body(ID)).
 
 game_body(_ID) -->
@@ -56,13 +56,13 @@ characters -->
 	a_character(Nouns).
 
 a_character([]) --> [].
-a_character([noun_state(Name,X,Y,person, EmoIcon,BodyIcon) | Rest]) -->
-	html(div([class(noun), style(['left: ~wpx; top: ~wpx'-[X,Y]]), id(Name)], [
+a_character([noun_state(Name,X,Y,person, EmoIcon,BodyIcon, ToolTip)| Rest]) -->
+	html(div([class(noun),title(ToolTip), style(['left: ~wpx; top: ~wpx'-[X,Y]]), id(Name)], [
 		     img([class(body), src(['/img/~w'-BodyIcon])]),
 		     img([class(emo), src(['/img/~w'-EmoIcon])])
 		 ])),
 	a_character(Rest).
-a_character([noun_state(_,_,_,place,_,_) | Rest]) -->
-	a_character(Rest).
-
-% get_vworld([noun_state(P1,X,Y,EmoIcon,BodyIcon),noun_state(P1,X,Y,EmoIcon,BodyIcon),...])
+a_character([noun_state(_,_,_,place,_,_,_) | Rest]) -->
+	a_character(Rest).          
+                                          
+% get_vworld([noun_state(P1,X,Y,EmoIcon,BodyIcon),noun_state(P1,X,Y,EmoIcon,BodyIcon),...])                              "

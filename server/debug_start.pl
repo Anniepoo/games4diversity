@@ -25,7 +25,7 @@ reasonable_version :-
 check_version :- reasonable_version, !.
 check_version :-
       current_prolog_flag(version_data, swi(Major, Minor, Patch, _)),
-      format('OOOPS - you need swipl version 7.1.4 or better, you are on ~w.~w.~w~n',
+      'format'('OOOPS - you need swipl version 7.1.4 or better, you are on ~w.~w.~w~n',
 	[Major, Minor, Patch]).
 
 :- check_version.
@@ -63,12 +63,12 @@ http:location(pldoc, root('gamejam/help/source'), [priority(10)]).
 :- gamejam_game_debug_port(Port), doc_server(Port).
 
 :- gamejam_game_debug_port(Port),
-	format(atom(URL), 'http://localhost:~w/', [Port]),
+	'format'(atom(URL), 'http://localhost:~w/', [Port]),
 	www_open_url(URL).
 
 % and our pldoc home page
 :- gamejam_game_debug_port(Port),
-	format(atom(URL), 'http://localhost:~w/gamejam/help/source/', [Port]),
+	'format'(atom(URL), 'http://localhost:~w/gamejam/help/source/', [Port]),
 	www_open_url(URL).
 
 % and bring up the main module in the editor
