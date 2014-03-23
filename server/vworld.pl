@@ -44,7 +44,7 @@ world_range(1,1,1000,1000,200).
 % returns a list 
 get_vworld(List):- P=noun_state(_P1,_X,_Y,_EmoIcon,_BodyIcon), findall(P,P,List).
 
-set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert(loc_goal(P1,X,Y)).
+set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert_now(loc_goal(P1,X,Y)).
    
 reset_world :- clear_world, add_persons_places.
 
@@ -65,12 +65,12 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 % loc(Place,X,Y).
 :-dynamic(loc/3).
 
-move_all.
 
-noun_state(P1,X,Y,EmoIcon,BodyIcon):- 
-   loc(P1,X,Y),  noun_type(P1,Body),
+
+noun_state(P1,X,Y,EmoIcon,BodyIcon):- noun_type(P1,Body),
+   once((loc(P1,X,Y),
    atom_concat(Body,'.PNG',BodyIcon),
-   reaction_icon(P1,EmoIcon).
+   reaction_icon(P1,EmoIcon))).
 	
 
 % place a Person is traveling to
@@ -121,14 +121,25 @@ clear_world:-
               retractall(noun_type(_,_)).
 
 add_persons_places:- setup_type(Priest,_Range200,_FavLoc,Num,_StereoType), 
-      between(1,N,Num),atom_concat(Priest,N,Whatnot),assert(noun_type(Whatnot,Priest)),
-      random_loc(X,Y),assert(loc(Whatnot,X,Y)),fail.
+      between(1,Num,N),atom_concat(Priest,N,Whatnot),assert_now(noun_type(Whatnot,Priest)),
+      random_loc(X,Y),assert_now(loc(Whatnot,X,Y)),fail.
+add_persons_places.
 
 
+assert_now(X):-debugFmt(X),assert(X).
+
+
+debugFmt(X):-debugFmt('Debug: ~w. ~n',[X]).
+
+debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 
 % -----------------------
 % world play preds
 % -----------------------
+
+move_all.
+
+% move_all:-noun_type(P1,Type),..
 
 
 
