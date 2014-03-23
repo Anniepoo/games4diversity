@@ -1,5 +1,9 @@
 :- module(vworld, [get_vworld/1,reset_world/0,clear_world/0,add_persons_places/0,move_all/0,set_loc_goal/3]).
 
+:- use_module(library(pengines)).
+:- use_module(library(sandbox)).
+:- use_module(pengine_sandbox:vworld_apis).
+
 % -----------------------
 % Ontology and config
 % -----------------------
