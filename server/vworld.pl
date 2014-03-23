@@ -115,11 +115,13 @@ noun_info(P1,P1).
 
 reaction(P1,P2,_Emo,Value):-P1=P2,!,Value=0.0.
 reaction(P1,P2,Emo,Value):-noun_stype(P1,S1),noun_stype(P2,S2),!,type_react(S1,S2,Emo),
-                                  dist(P1,P2,D),noun_type(P2,Type),type_effect_range(Type,R),
-                                    drv(D , R, Value),!.
-drv(D,_R,0.0):- D < 1,!.
-drv(D,R,V):- D < R,  V is 3 *(R / D),!.
+                                  dist(P1,P2,D),noun_type(P2,Type),type_effect_range(Type,ER),
+                                    drv(D , ER, Value),!.
+drv(D0,_R,0.0):- D is D0,D < 1,!.
+%%drv(D0,R0,V):-R is R0,D is D0, D < R ,  V is D,!.
+drv(D0,R0,V):-R is R0,D is D0, D < R ,  V is 3 *(R / D),!.
 drv(_,_,0.01).
+
 
 
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
@@ -283,7 +285,10 @@ lj_dist(Type, P, B,  R) :-
    stability(Type, P, B, Stability),
    mag(Type, P, B, Mag),
    dist(P,B,D),
-   R is (D*Mag) + Stability.
+   
+  %% nop((noun_type(B,BType), type_effect_range(BType,RE), drv(D,RE*2,V1),V is V1*5 )),
+   V is D,
+   R is (V* Mag) + Stability.
     
 unit_vector(P, B, R, UX, UY) :-
     loc(P, XA, YA),
