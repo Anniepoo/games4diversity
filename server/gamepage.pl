@@ -37,7 +37,7 @@ game_page_handler_(_Request) :-
 			[title('Crowd Pleasing')],
 			\game_body(ID)).
 
-game_body(ID) -->
+game_body(_ID) -->
 	html([
 	   \html_requires(jquery),
 	   div(id(main), [\characters])
@@ -55,9 +55,9 @@ characters -->
 
 a_character([]) --> [].
 a_character([noun_state(Name,X,Y,EmoIcon,BodyIcon) | Rest]) -->
-	html(div([class(noun), style(['left: ~w, top: ~w'-[X,Y]]), id(Name)], [
-		     img([class(emo), src(EmoIcon)]),
-		     img([class(body), src(BodyIcon)])
+	html(div([class(noun), style(['left: ~wpx, top: ~wpx'-[X,Y]]), id(Name)], [
+		     img([class(body), src(BodyIcon)]),
+		     img([class(emo), src(EmoIcon)])
 		 ])),
 	a_character(Rest).
 

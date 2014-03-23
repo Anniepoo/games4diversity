@@ -28,6 +28,7 @@ user:file_search_path(desktop_files, 'assets/desktop/html').
 user:file_search_path(static_files, assets).
 user:file_search_path(css, 'assets/css').
 user:file_search_path(js, 'assets/js').
+user:file_search_path(img, 'assets/img').
 
 % handle /f/
 :- http_handler(files(.),
@@ -41,6 +42,11 @@ user:file_search_path(js, 'assets/js').
 
 % handle /js/
 :- http_handler(js(.),
+		serve_files(js(.)) ,
+		[prefix, priority(10)]).
+
+% handle /img/
+:- http_handler(img(.),
 		serve_files(js(.)) ,
 		[prefix, priority(10)]).
 
