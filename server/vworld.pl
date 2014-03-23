@@ -144,6 +144,7 @@ add_persons_places.
 assert_now(X):-debugFmt(add(X)),assert(X).
 retractall_now(X):-debugFmt(del(X)),retractall(X).
 
+debugFmt(_):-!.
 debugFmt(X):-debugFmt('Debug: ~w.~n',[X]).
 
 debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
