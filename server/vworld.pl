@@ -45,7 +45,10 @@ world_range(1,1,1000,1000,200).
 % returns a list
 get_vworld(List):- P=noun_state(_P1,_X,_Y,_NounType,_EmoIcon,_BodyIcon), findall(P,P,List).
 
-set_loc_goal(P1,X,Y):- retractall(loc_goal(P1,_,_)),assert_now(loc_goal(P1,X,Y)).
+set_loc_goal(P1,X1,Y1):-
+   to_int(X1,X2),
+   to_int(Y1,Y2),
+   retractall(loc_goal(P1,_,_)),assert_now(loc_goal(P1,X2,Y2)).
 
 reset_world :- clear_world, add_persons_places.
 
