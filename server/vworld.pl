@@ -93,19 +93,15 @@ noun_stype(Disco1,Gay):-noun_type(Disco1,Disco),setup_type(Disco,_,_,_,Gay).
 noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
 noun_state(P1,X,Y,NounTT,EmoIcon,BodyIcon,ToolTip):-
-   noun_type(P1,Body),
+   noun_type(P1,_),
    once((loc(P1,X,Y),
          noun_type_type(P1,NounTT),
-   once((body_icon(P1,Body,BodyIcon))),
+   once((body_icon(P1,BodyIcon))),
    reaction_icon(P1,EmoIcon),
    noun_info(P1,ToolTip))).
 
 body_icon(P1,BodyIcon):-gender(P1,G),noun_type(P1,T),body_icon(G,T,BodyIcon),!.
 
-body_icon(_,average,'wmale25.PNG').
-body_icon(male,priest,'WPreac.png').
-body_icon(_,X,G):-atom_concat(X,'.PNG',G).
-body_icon(male,_,'wmale25.PNG').
 
 :-dynamic(known_gender/2).
 known_gender(priest1,male).
@@ -142,6 +138,15 @@ drv(_,_,0.01).
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
 
+% -----------------------
+% Graphics
+% -----------------------
+old_icons :- fail.
+
+
+%% heads...
+reaction_icon_typed(_Person,_Gender,_Type,Emo,Icon):- old_icons, atom_concat(Emo,'1.PNG',Icon).
+
 reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest are male or females posing as males
 reaction_icon_typed(_P1,_G,priest,happy,'WPreac_Happy.png').
 reaction_icon_typed(_P1,male,_,happy,'WhMale_Happy.png').
@@ -149,9 +154,23 @@ reaction_icon_typed(_P1,female,_,happy,'WWoman_Happy.png').
 reaction_icon_typed(_P1,male,_,neutral,'WhMale_Neutral.png').
 reaction_icon_typed(_P1,female,_,neutral,'WWoman_Neutral.png').
 reaction_icon_typed(_P1,male,_,angry,'WhMale_Angry.png').
-reaction_icon_typed(_P1,female,_,angry,'WWoman_Angry.png').
+reaction_icon_typed(_P1,female,_,angry,'BWoman_Angry.png').
 reaction_icon_typed(_P1,male,_,fear,'WhMale_Fear.png').
 reaction_icon_typed(_P1,female,_,fear,'WWoman_Fear.png').
+
+%% bodies...
+body_icon(_Gender,Type,Icon):- old_icons,atom_concat(Type,'.PNG',Icon).
+
+body_icon(_,average,'wmale25.PNG').
+body_icon(_,average,'WhMale.PNG').
+body_icon(_,priest,'WPreac.png').
+body_icon(male,gay,'BGayMa.png').
+body_icon(_,gay,'WGayFe.png').
+body_icon(male,priest,'WPreac.png').
+body_icon(_,X,G):-atom_concat(X,'.PNG',G).
+body_icon(male,_,'wmale25.PNG').
+
+
 
 reaction_icon(P1,EmoIconPNG):-
   notrace(( noun_emo_most(P1,Emo,_Strengh))),
@@ -225,7 +244,7 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 start_move_threads:-started_move_threads,!.
 start_move_threads:-
    asserta(started_move_threads),
-%   thread_create(move_all_thread,ID1,[alias(move_all_thread),at_exit(retract_self)]),
+%   thread_create(change_movement_goals,ID1,[alias(change_movement_goals),at_exit(retract_self)]),
    thread_create(interpolate_thread,ID2,[alias(interpolate_thread),at_exit(retract_self)]),
 %   asserta(movement_thread(ID1)),
    asserta(movement_thread(ID2)).
@@ -235,12 +254,16 @@ retract_self:-thread_self(ID),retractall(movement_thread(ID)).
 stop_move_threads:- retract(movement_thread(ID)),thread_signal(ID,thread_exit(kill_move_threads)),fail.
 stop_move_threads.
 
-move_all_thread:-repeat,sleep(20),once(move_all),fail.
+%% blocks and emulates players every 20 seconds
+%change_movement_goals:-repeat,sleep(20),once(move_all),fail.
+
+%% blocks and advances frames 1 per second
 interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
+% advances one frame
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!, make.  % to check for changed disk files!
+move_all_one_sec:-!. %%, make.  % to check for changed disk files!
 
 move_for_one_sec(P1):- 
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
