@@ -201,6 +201,7 @@ clear_world:- retractall_now(loc(_,_,_)),
               retractall_now(noun_type(_,_)).
 
 
+add_persons_places:-assert_now(loc(church1, 294, 274)),assert_now(loc(disco1, 629 , 241)),assert_now(loc(sportsbar1, 903,341)),fail.
 add_persons_places:- setup_type(Priest,_Range200,_FavLoc,Num,_StereoType),
       between(1,Num,N),atom_concat(Priest,N,Whatnot),assert_now(noun_type(Whatnot,Priest)),
       random_loc(X,Y),once(( loc(Whatnot,_,_) -> true ; assert_now(loc(Whatnot,X,Y) ))),fail.
