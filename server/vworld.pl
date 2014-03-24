@@ -237,7 +237,7 @@ move_all_one_sec :- !.
 		 *******************************/
 
 
-in_test_annies_work_mode(true).
+in_test_annies_work_mode(false).
 
 move_for_one_sec(P1) :-
    in_test_annies_work_mode(true),
@@ -258,7 +258,7 @@ move_for_one_sec(P) :-
    in_test_annies_work_mode(true),
 	debug(vworld_ticks, 'Can\'t move ~w', [P]),!.
 
-/*
+
 move_for_one_sec(P1):-
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
    loc(P1,X1,Y1),
@@ -277,7 +277,7 @@ move_for_one_sec(P1) :-
    set_loc(P1,X2,Y2),!,
    dist(X1,Y1,X2,Y2,D),
    nop(debugFmt('~w trying move ~w to get from ~w,~w to ~w,~w ~n',[P1, D, X1,Y1,X2,Y2])).
-*/
+
 
 noun_emo_most(P1,Emo,Strengh):-noun_emo_vectors(P1,[Strengh-Emo|_]).
 
@@ -301,7 +301,7 @@ rate_situation(Type,P, [B|T], WIn, WOut) :-
 type_sign(P1,P2,-1.0):-noun_stype(P1,S1),noun_stype(P2,S2),S1=S2,!.
 type_sign(_P1,_P2,1.0).
 
-speed_cofactor(200.0).
+speed_cofactor(600.0).
 
 stability(tension,_P,_B,8.0):-!.
 stability(_,_,_,8.0). % this keeps us out of some very ugly edge cases as we get near R = 0
