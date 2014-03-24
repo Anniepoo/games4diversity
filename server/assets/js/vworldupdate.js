@@ -6,9 +6,9 @@ $( function() {
 		 onerror: handleError 
 	});
 	function handleCreate () {
-		vworldupdatepengine.ask("pen_get_vworld(X)", {
+		if (false) {vworldupdatepengine.ask("pen_get_vworld(X)", {
 			template:'X'                
-		});
+		});}
 	}
 	function pengine_next () {
 		vworldupdatepengine.next();

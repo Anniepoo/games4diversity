@@ -36,7 +36,7 @@ game_page_handler_(_Request) :-
 	player_id(ID),
 	reply_html_page(desktop_game,
 			[
-			    % meta([ 'http-equiv'(refresh),content(1)]),
+			     meta([ 'http-equiv'(refresh),content(1)]),
 			    title('Crowd Pleasing')],
 			\game_body(ID)).
 
