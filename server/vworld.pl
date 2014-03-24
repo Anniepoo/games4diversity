@@ -1,6 +1,6 @@
 :- module(vworld, [
             get_vworld/1,
-            reset_world/0]).
+            reset_world/0]).  /* ANNIE - removed stuff */
 
 /** <module> The virtual world is ran here
 
@@ -58,10 +58,9 @@ world_range(1,200,1000,1000,800).
 
 % returns a list
 
-% Jan fixes!
 get_vworld(List):-
-   make_state_current,
-   findall(
+   make_state_current,   /* ANNIE */
+   findall(                      % Jan fixes!
    noun_state(P1,X,Y,NounType,EmoIcon,BodyIcon,ToolTip),
    noun_state(P1,X,Y,NounType,EmoIcon,BodyIcon,ToolTip), List).
 
@@ -182,6 +181,13 @@ debugFmt(F,A):-format(user_error,F,A),flush_output(user_error).
 % -----------------------
 % world play preds
 % -----------------------
+%
+
+		 /*******************************
+		 *  ANNIE	  Non-threaded game state
+		 *   update. The
+		 *******************************/
+
 :- dynamic last_move_time/1.
 
 %%	last_move_time(-Time:number) is det
@@ -197,8 +203,7 @@ last_move_time(0).
 %	ok to call frequently
 %
 make_state_current :-
-	make_state_current_.
-%	with_mutex(state_vars, make_state_current_).
+	with_mutex(state_vars, make_state_current_).
 
 make_state_current_ :-
 	get_time(Time),
@@ -223,6 +228,15 @@ move_all_one_sec:-
 	fail.
 move_all_one_sec :- !.
 
+		 /*******************************
+		 *    ANNIE - wanted to be able to debug
+		 *  game engine outer loop without debugging motion
+		 *  so I made simple linear motion.  define false
+		 and uncomment big chunk below to
+		 go back to nromal
+		 *******************************/
+
+
 in_test_annies_work_mode(true).
 
 move_for_one_sec(P1) :-
@@ -241,6 +255,7 @@ move_for_one_sec(P1) :-
        debug(vworld_ticks, 'priest1 at (~w,~w)', [X,Y])
    ),!.
 move_for_one_sec(P) :-
+   in_test_annies_work_mode(true),
 	debug(vworld_ticks, 'Can\'t move ~w', [P]),!.
 
 /*

@@ -45,10 +45,11 @@ game_body(_ID) -->
 	   \html_requires(jquery),
 %	   \html_requires(pengine),
 %	   \html_requires(vworld_update),
-	   \comm_by_ajax,
+	   \comm_by_ajax,   /* ANNIE */
 	   div(id(main), [\characters])
 	]).
 
+/* ANNIE sez you'll need that latest js/pageupdate.js should come with pull */
 
 % TODO no player identity yet
 player_id(1).
