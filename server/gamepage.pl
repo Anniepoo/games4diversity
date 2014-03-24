@@ -43,9 +43,9 @@ game_page_handler_(_Request) :-
 game_body(_ID) -->
 	html([
 	   \html_requires(jquery),
-	   \html_requires(pengine),
-	   \html_requires(vworld_update),
-%	   \comm_by_ajax,
+%	   \html_requires(pengine),
+%	   \html_requires(vworld_update),
+	   \comm_by_ajax,
 	   div(id(main), [\characters])
 	]).
 
