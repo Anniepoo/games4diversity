@@ -150,6 +150,8 @@ reaction_icon_typed(_P1,male,_,neutral,'WhMale_Neutral.png').
 reaction_icon_typed(_P1,female,_,neutral,'WWoman_Neutral.png').
 reaction_icon_typed(_P1,male,_,angry,'WhMale_Angry.png').
 reaction_icon_typed(_P1,female,_,angry,'WWoman_Angry.png').
+reaction_icon_typed(_P1,male,_,fear,'WhMale_Fear.png').
+reaction_icon_typed(_P1,female,_,fear,'WWoman_Fear.png').
 
 reaction_icon(P1,EmoIconPNG):-
   notrace(( noun_emo_most(P1,Emo,_Strengh))),
