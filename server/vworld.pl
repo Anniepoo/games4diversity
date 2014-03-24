@@ -90,11 +90,13 @@ noun_type_type(P1,T):-noun_type(P1,T1),(is_loc_type(T1) -> T=place; T=person),!.
 
 noun_state(P1,X,Y,NounTT,EmoIcon,BodyIcon,ToolTip):-
    noun_type(P1,_),
-   once((loc(P1,X,Y),
+   once((loc(P1,FX,FY),
          noun_type_type(P1,NounTT),
    once((body_icon(P1,BodyIcon))),
    reaction_icon(P1,EmoIcon),
-   noun_info(P1,ToolTip))).
+   noun_info(P1,ToolTip))),
+   X is round(FX),
+   Y is round(FY).
 
 body_icon(P1,BodyIcon):-gender(P1,G),noun_type(P1,T),body_icon(G,T,BodyIcon),!.
 
@@ -121,7 +123,7 @@ noun_info(P1,P1).
 old_icons :- fail.
 
 
-%% heads...
+% heads...
 reaction_icon_typed(_Person,_Gender,_Type,Emo,Icon):- old_icons, atom_concat(Emo,'1.PNG',Icon).
 
 reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest are male or females posing as males
@@ -156,14 +158,14 @@ reaction(P1,P2,Emo,Value):-noun_stype(P1,S1),noun_stype(P2,S2),!,type_react(S1,S
                                   dist(P1,P2,D),noun_type(P2,Type),type_effect_range(Type,ER),
                                     drv(D , ER, Value),!.
 drv(D0,_R,0.0):- D is D0,D < 1,!.
-%%drv(D0,R0,V):-R is R0,D is D0, D < R ,  V is D,!.
+% drv(D0,R0,V):-R is R0,D is D0, D < R ,  V is D,!.
 drv(D0,R0,V):-R is R0,D is D0, D < R ,  V is 3 *(R / D),!.
 drv(_,_,0.01).
 
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
 
-%% bodies...
+% bodies...
 body_icon(_Gender,Type,Icon):- old_icons,atom_concat(Type,'.PNG',Icon).
 
 body_icon(_,average,'wmale25.PNG').
@@ -272,7 +274,7 @@ make_state_current :-
 make_state_current_ :-
 	get_time(Time),
 	last_move_time(Last),
-	Last + 1.0 >= Time.
+	Last + 0.33 >= Time.
 make_state_current_ :-
 	debug(vworld_ticks, 'into make_state_current_', []),
 	ignore(
@@ -365,7 +367,7 @@ rate_situation(Type,P, [B|T], WIn, WOut) :-
 type_sign(P1,P2,-1.0):-noun_stype(P1,S1),noun_stype(P2,S2),S1=S2,!.
 type_sign(_P1,_P2,1.0).
 
-speed_cofactor(600.0).
+speed_cofactor(200.0).
 
 stability(tension,_P,_B,8.0):-!.
 stability(_,_,_,8.0). % this keeps us out of some very ugly edge cases as we get near R = 0
@@ -375,15 +377,12 @@ mag(_Type,P1,P2,Sign) :- type_sign(P1,P2,Sign),!.
 lj_coefficients(move,_,_,4096.0, -256000.0).
 lj_coefficients(tension,_,_,4096.0, -256000.0).
 
-
-
 % movement version
 lennard_jones_m(P, T, NFX, NFY, FX, FY):-lennard_jones(move, P, T, NFX, NFY, FX, FY).
 
 % adversion weighted
 lennard_jones_a_w(P, T, NFX, NFY, FX, FY):-
    lennard_jones(tension, P, T, NFX, NFY, FX, FY),!.
-
 
 lennard_jones(_Type,_P, [], FInX, FInY, FInX, FInY).
 lennard_jones(Type,P, [P|T], FInX, FInY, FX, FY) :- % skip oneself
@@ -418,11 +417,9 @@ get_polar_coords(DX,DY,Ang,Dist):-Dist is sqrt(DX*DX+DY*DY), Ang is atan2(DY,DX)
 
 set_loc(P1,X1,Y1):-
    debug(vworld_moves, 'into set_loc ~w ~w,~w', [P1, X1, Y1]),
-   to_int(X1,X2),
-   to_int(Y1,Y2),
    world_range(SX,SY,EX,EY,_),
-   make_between(X2,SX,EX,X3),
-   make_between(Y2,SY,EY,Y3),
+   make_between(X1,SX,EX,X3),
+   make_between(Y1,SY,EY,Y3),
    retractall(loc(P1,_,_)),
    assert(loc(P1,X3,Y3)),
    debug(vworld_moves, 'exiting set_loc ~w ~w,~w', [P1, X3, Y3]).
