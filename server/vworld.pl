@@ -142,12 +142,14 @@ drv(_,_,0.01).
 noun_react(P1,P2,R):-noun_stype(P1,T1),noun_stype(P2,T2),type_react(T1,T2,R).
 
 
-reaction_icon_typed(_P1,male,_,happy,'WhMale_Happy.png').
-reaction_icon_typed(_P1,female,_,happy,'WWoman_Happy.png').
-reaction_icon_typed(_P1,male,_,angry,'WhMale_Angry.png').
-reaction_icon_typed(_P1,female,_,angry,'WWoman_Angry.png').
 reaction_icon_typed(_P1,_G,priest,angry,'WPreac_Angryl.png'). % all priest are male or females posing as males
 reaction_icon_typed(_P1,_G,priest,happy,'WPreac_Happy.png').
+reaction_icon_typed(_P1,male,_,happy,'WhMale_Happy.png').
+reaction_icon_typed(_P1,female,_,happy,'WWoman_Happy.png').
+reaction_icon_typed(_P1,male,_,neutral,'WhMale_Neutral.png').
+reaction_icon_typed(_P1,female,_,neutral,'WWoman_Neutral.png').
+reaction_icon_typed(_P1,male,_,angry,'WhMale_Angry.png').
+reaction_icon_typed(_P1,female,_,angry,'WWoman_Angry.png').
 
 reaction_icon(P1,EmoIconPNG):-
   notrace(( noun_emo_most(P1,Emo,_Strengh))),
@@ -235,7 +237,7 @@ interpolate_thread:-repeat,sleep(1),once(move_all_one_sec),fail.
 
 
 move_all_one_sec:-noun_type(P1,Type),not(is_loc_type(Type)),move_for_one_sec(P1),fail.
-move_all_one_sec:-!, make. % to check for changed disk files!
+move_all_one_sec:-!, make.  % to check for changed disk files!
 
 move_for_one_sec(P1):- 
    loc_goal(P1,X3,Y3), %% only use if there was a goal_loc
