@@ -43,9 +43,9 @@ game_page_handler_(_Request) :-
 game_body(_ID) -->
 	html([
 	   \html_requires(jquery),
-%	   \html_requires(pengine),
-%	   \html_requires(vworld_update),
-	   \comm_by_ajax,   /* ANNIE */
+	   \html_requires(pengine),  /* PENGINE */
+	   \html_requires(vworld_update),   /* PENGINE */
+%	   \comm_by_ajax,   /* AJAX */
 	   div(id(main), [\characters])
 	]).
 
